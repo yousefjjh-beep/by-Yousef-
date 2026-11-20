@@ -356,6 +356,9 @@ body.zin .zoomhint{opacity:0}
 .sv::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,rgba(0,0,0,0) 58%,rgba(0,0,0,.42))}
 .sv{aspect-ratio:16/9}.sv>svg#scene{position:absolute;inset:0;width:100%;height:100%}
 @media(min-width:1000px) and (min-height:600px){.win{width:min(56vw,1040px,(100vh - var(--dock) - 150px)*1.78)}}
+body.playing .zoomhint{display:none!important}
+@media(max-width:900px),(max-height:520px){body.explore .zoomhint{display:none!important}}
+@media(max-height:520px){.tools{flex-wrap:nowrap!important}#aboutB{display:none!important}#sndHint{left:auto!important;right:200px!important;transform:none!important;font-size:11.5px!important}}
 
 /* v8 dusk theme */
 .c{stroke:#5a4a35}.c.et{fill:#33291f}.lbl{fill:#cbb891}.sealbl{fill:#7fa0ac}
@@ -1532,7 +1535,7 @@ function vidTick(t){const L=VID[cur];if(!L||!sdef){vidOff();return}
  vidShot(key);
  const a=VD.els[VD.act];if(a&&a.classList.contains("on")){if(paused){if(!a.paused)a.pause()}else{if(a.paused&&!a.ended){const p=a.play();if(p&&p.catch)p.catch(()=>{})}
    if(a.duration&&a.duration-a.currentTime<1.0&&a.dataset.key===VD.key&&VD.els[1-VD.act].dataset.want!=="1")vidShot(VD.key,true)}}}
-{const _f=frame;frame=function(t){_f(t);try{vidTick(t)}catch(e){}};const _h=haltScene;haltScene=function(){_h.apply(this,arguments);vidOff();VD.stage=-1}}
+{const _f=frame;frame=function(t){_f(t);try{vidTick(t);document.body.classList.add('playing')}catch(e){}};const _h=haltScene;haltScene=function(){_h.apply(this,arguments);vidOff();VD.stage=-1;document.body.classList.remove('playing')}}
 
 const h0=parseInt((location.hash.match(/stage-(\d+)/)||[])[1]);setMode(false);if(h0>=1&&h0<=S.length)show(h0-1);else{renderCard();renderQuiz();requestAnimationFrame(()=>overview());showIntro()}
 
