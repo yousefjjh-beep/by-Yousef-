@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bayt Safar — a Najdi court house</title>
+<style>
+  html,body{margin:0;height:100%;background:#1b1612;overflow:hidden;font-family:Georgia,'Times New Roman',serif;color:#f4ead8}
+  canvas{display:block;width:100%;height:100%}
+  #veil{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(27,22,18,.62);text-align:center;transition:opacity .5s;padding:24px}
+  #veil.loading{background:#1b1612}
+  #veil.off{opacity:0;pointer-events:none}
+  h1{font-weight:400;font-size:clamp(34px,6vw,72px);letter-spacing:.04em;margin:0}
+  h1.ar{font-family:'Amiri','Noto Naskh Arabic','Geeza Pro','Segoe UI',Georgia,serif;letter-spacing:0;margin-top:.1em}
+  .sub{font:13px/1.6 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.18em;text-transform:uppercase;opacity:.8;margin:14px 0 6px}
+  .sub.ar{font-family:'IBM Plex Sans Arabic','Noto Kufi Arabic','Geeza Pro','Segoe UI',sans-serif;letter-spacing:0;margin:0 0 34px;display:none}
+  #plan{position:fixed;inset:0;display:none;background:#f4f1ea;z-index:5}
+  #planCv{width:100%;height:100%;display:block}
+  #planBack{position:absolute;left:18px;top:18px;background:#1b1a18;color:#f4f1ea}
+  button{font:13px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.16em;text-transform:uppercase;color:#1b1612;background:#e8c98f;border:0;padding:14px 26px;margin:6px;cursor:pointer}
+  button.ghost{background:transparent;color:#f4ead8;border:1px solid rgba(244,234,216,.6)}
+  .keys{font:12px/1.9 ui-monospace,Menlo,Consolas,monospace;opacity:.75;margin-top:26px}
+  #places{position:fixed;left:0;right:0;top:0;display:flex;gap:6px;padding:10px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;z-index:2}
+  #places::-webkit-scrollbar{display:none}
+  #places button,#menuBtn{margin:0;padding:9px 13px;font-size:11px;letter-spacing:.12em;background:rgba(27,22,18,.55);color:#f4ead8;border:1px solid rgba(244,234,216,.45);white-space:nowrap;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);flex:none}
+  #menuBtn{background:#e8c98f;color:#1b1612;border-color:#e8c98f}
+  #stick{position:fixed;left:22px;bottom:26px;width:124px;height:124px;border-radius:50%;background:rgba(27,22,18,.35);border:1px solid rgba(244,234,216,.5);display:none;touch-action:none;z-index:2}
+  #knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px;border-radius:50%;background:rgba(232,201,143,.9)}
+  #tip{position:fixed;right:16px;bottom:26px;max-width:46vw;font:11px/1.5 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em;text-align:right;text-shadow:0 1px 6px rgba(0,0,0,.8);opacity:.85;display:none;pointer-events:none}
+  body.touch #stick,body.touch #tip{display:block}
+  body.touch #hud{left:auto;right:16px;bottom:auto;top:58px}
+  body.touch #fps{display:none}
+  body.touch canvas{touch-action:none}
+  .keys .t{display:none} body.touch .keys .d{display:none} body.touch .keys .t{display:inline}
+  #hud{position:fixed;left:22px;bottom:18px;font:12px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.2em;text-transform:uppercase;text-shadow:0 1px 6px rgba(0,0,0,.7);pointer-events:none}
+  #fps{position:fixed;right:22px;bottom:18px;font:11px ui-monospace,Menlo,Consolas,monospace;opacity:.6;pointer-events:none}
+  #dot{position:fixed;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%;background:rgba(255,255,255,.6);pointer-events:none;display:none}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri&family=IBM+Plex+Sans+Arabic&display=swap">
+<script type="importmap">{"imports":{"three":"./lib/three.module.js","three/addons/":"./lib/jsm/"}}</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="dot"></div>
+<div id="places"><button id="menuBtn">Menu</button></div>
+<div id="stick"><div id="knob"></div></div>
+<div id="tip">Left thumb walks · drag to look · tap the floor to go there</div>
+<div id="hud"></div><div id="fps"></div>
+<div id="veil" class="loading">
+  <h1>Bayt Safar</h1>
+  <h1 class="ar" lang="ar" dir="rtl">بيت صفار</h1>
+  <div class="sub" id="status">Laying travertine…</div>
+  <div class="sub ar" id="statusAr" lang="ar" dir="rtl">بيت بفناء داخلي على طراز وادي صفار · تصميم يوسف</div>
+  <div id="go" style="display:none">
+    <button id="walk">Walk the house</button><button id="tour" class="ghost">Play the tour</button><button id="planBtn" class="ghost">Master plan</button>
+    <div class="keys"><span class="d">W A S D or arrows to walk · click, then move the mouse to look (or drag) · Shift to hurry<br>T plays the tour, any walk key takes over · Esc releases the mouse · room names along the top jump you there</span><span class="t">Left thumb on the round pad to walk · drag anywhere to look<br>Tap the floor to walk to that spot · room names along the top jump you there</span></div>
+  </div>
+</div>
+<div id="plan"><canvas id="planCv"></canvas><button id="planBack">Back</button></div>
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

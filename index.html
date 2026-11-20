@@ -1,0 +1,396 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Built by Yousef</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one drawing sheet that lists every project (a drawing register); each project opens full-screen in a frame under a slim sheet bar. Single deliberate paper look. */
+:root{
+  --paper:#f2efe7; --paper-2:#e9e5da; --ink:#1d1c19; --amber:#e85d04;
+  --ink-2:rgba(29,28,25,.62); --ink-3:rgba(29,28,25,.32); --rule:rgba(29,28,25,.16);
+  --f-head:"Chakra Petch","Rajdhani","Arial Narrow",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --edge:clamp(14px,2.2vw,28px);
+  color-scheme:light;
+}
+html,body{height:100%;background:var(--paper);color:var(--ink)}
+body{font-family:var(--f-mono);font-size:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+/* ---------- the Yousef The First plan, traced in pencil behind the register */
+#sketch{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#sketch i{position:absolute;left:50%;top:54%;width:min(1500px,150vw);aspect-ratio:1941/882;max-width:none;transform:translate(-46%,-50%) rotate(-1.2deg);
+  background:url("assets/yousef-the-first-plan.png") center/contain no-repeat;opacity:.13;
+  -webkit-mask-image:radial-gradient(ellipse 60% 62% at 50% 50%, #000 55%, transparent 100%);mask-image:radial-gradient(ellipse 60% 62% at 50% 50%, #000 55%, transparent 100%)}
+#sketch i + i{transform:translate(-45.6%,-49.4%) rotate(-.7deg);opacity:.07}
+#sketch b{position:absolute;right:calc(var(--edge) + 30px);bottom:calc(var(--edge) + 6px);font-weight:400;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+body.viewing #sketch{display:none}
+#home{position:relative;z-index:1}
+.proj{background:color-mix(in srgb, var(--paper) 78%, transparent)}
+
+/* ---------- register (the home sheet) */
+#home{max-width:1180px;margin:0 auto;padding-block:calc(var(--edge) + 18px) 40px;display:grid;gap:34px}
+.reg{position:fixed;width:22px;height:22px;pointer-events:none;z-index:1}
+.reg::before,.reg::after{content:"";position:absolute;background:var(--ink)}
+.reg::before{left:50%;top:0;bottom:0;width:1px}
+.reg::after{top:50%;left:0;right:0;height:1px}
+.reg i{position:absolute;inset:5px;border:1px solid var(--ink);border-radius:50%}
+.reg.tl{left:calc(var(--edge) - 11px + env(safe-area-inset-left,0px));top:calc(var(--edge) - 11px + env(safe-area-inset-top,0px))}
+.reg.tr{right:calc(var(--edge) - 11px + env(safe-area-inset-right,0px));top:calc(var(--edge) - 11px + env(safe-area-inset-top,0px))}
+.reg.bl{left:calc(var(--edge) - 11px + env(safe-area-inset-left,0px));bottom:calc(var(--edge) - 11px + env(safe-area-inset-bottom,0px))}
+.reg.br{right:calc(var(--edge) - 11px + env(safe-area-inset-right,0px));bottom:calc(var(--edge) - 11px + env(safe-area-inset-bottom,0px))}
+body.viewing .reg{display:none}
+
+header.top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end;border-bottom:1px solid var(--ink);padding-bottom:22px}
+.kicker{margin:0 0 10px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+h1{margin:0;font-family:var(--f-head);font-weight:600;font-size:clamp(40px,7vw,92px);line-height:.9;letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
+h1 span{color:var(--amber)}
+.lede{margin:16px 0 0;max-width:56ch;font-size:13px;line-height:1.6;color:var(--ink-2)}
+.tblock{border:1px solid var(--ink);min-width:250px;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+.tblock div{display:flex;justify-content:space-between;gap:14px;padding:5px 9px;border-bottom:1px solid var(--rule)}
+.tblock div:last-child{border-bottom:0}
+.tblock span{color:var(--ink-2)}
+.tblock b{font-weight:500;font-variant-numeric:tabular-nums}
+.tblock a{color:var(--amber);text-decoration:none;border-bottom:1px solid currentColor}
+
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid var(--rule);padding-bottom:8px;margin:0}
+.sec-h b{color:var(--ink);font-weight:500}
+
+.projects{display:grid;gap:0;border-top:1px solid var(--ink)}
+.proj{display:grid;grid-template-columns:64px 240px minmax(0,1fr);gap:22px;padding:22px 0;border-bottom:1px solid var(--ink);align-items:start}
+.proj .no{font-family:var(--f-head);font-weight:600;font-size:34px;line-height:1;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.proj .thumb{width:100%;max-width:100%;aspect-ratio:3/2;border:1px solid var(--rule);background:var(--paper-2);display:block}
+.proj h2{margin:0;font-family:var(--f-head);font-weight:600;font-size:clamp(22px,2.6vw,32px);line-height:1;letter-spacing:.02em;text-transform:uppercase;text-wrap:balance}
+.proj .meta{display:flex;flex-wrap:wrap;gap:4px 16px;margin:8px 0 0;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.proj p.desc{margin:10px 0 0;max-width:62ch;line-height:1.6;color:var(--ink-2)}
+.views{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.view{display:grid;gap:3px;min-width:200px;text-align:left;text-decoration:none;background:var(--paper);border:1px solid var(--ink);padding:9px 12px 8px;box-shadow:3px 3px 0 var(--ink-3);transition:box-shadow .15s, border-color .15s}
+.view:hover{border-color:var(--amber);box-shadow:3px 3px 0 var(--amber)}
+.view b{font-family:var(--f-head);font-weight:600;font-size:15px;letter-spacing:.06em;text-transform:uppercase}
+.view small{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.view .go{color:var(--amber)}
+.proj .main-view b{color:var(--amber)}
+
+.how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;font-size:11px;line-height:1.6;color:var(--ink-2)}
+.how div{border-top:1px solid var(--rule);padding-top:10px;min-width:0}
+.how b{display:block;color:var(--ink);font-weight:500;letter-spacing:.12em;text-transform:uppercase;font-size:10px;margin-bottom:4px}
+footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);border-top:1px solid var(--ink);padding-top:12px}
+
+/* ---------- share */
+.share{position:relative;display:inline-block}
+.shareBtn{display:grid;gap:3px;text-align:left;background:var(--paper);border:1px dashed var(--ink);padding:9px 12px 8px;cursor:pointer;font-family:var(--f-mono);color:var(--ink);min-height:100%}
+.shareBtn b{font-family:var(--f-head);font-weight:600;font-size:15px;letter-spacing:.06em;text-transform:uppercase}
+.shareBtn small{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.shareBtn[aria-expanded="true"]{border-style:solid;border-color:var(--amber)}
+.sharePop{position:absolute;z-index:20;top:calc(100% + 8px);left:0;width:min(380px,calc(100vw - 32px));background:var(--paper);border:1px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:10px 12px 12px;display:grid;gap:10px}
+.sharePop h3{margin:0;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2)}
+.shareRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 8px;align-items:center;border-top:1px solid var(--rule);padding-top:8px}
+.shareRow span{font-size:10px;letter-spacing:.12em;text-transform:uppercase;grid-column:1/-1}
+.shareRow input{font:inherit;font-size:11px;color:var(--ink);background:#fbf9f4;border:1px solid var(--ink-3);padding:5px 7px;min-width:0;width:100%;box-sizing:border-box}
+.shareRow button,.socials a{font:inherit;font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--paper);border:0;padding:6px 10px 5px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.shareRow button.ok{background:var(--amber)}
+.socials{display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--rule);padding-top:8px}
+.socials a{background:var(--paper);color:var(--ink);border:1px solid var(--ink)}
+.socials a:hover{border-color:var(--amber);color:var(--amber)}
+.sharePop p{margin:0;font-size:10px;line-height:1.5;color:var(--ink-2)}
+#bar .share .shareBtn{padding:5px 9px 4px;display:block;border-style:solid;border-color:var(--ink-3)}
+#bar .share .shareBtn b{font-family:var(--f-mono);font-size:10px;font-weight:400;letter-spacing:.14em}
+#bar .share .shareBtn small{display:none}
+
+
+/* ---------- a project open in the frame */
+#viewer{position:fixed;inset:0;z-index:5;background:var(--paper);display:grid;grid-template-rows:auto minmax(0,1fr)}
+#bar{display:flex;align-items:center;gap:10px;min-width:0;padding:calc(6px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 6px max(12px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--ink);background:var(--paper);font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+#bar .home{display:flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);border:0;padding:6px 10px 5px;font:inherit;letter-spacing:.14em;cursor:pointer;white-space:nowrap}
+#bar .t{font-family:var(--f-head);font-size:14px;font-weight:600;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#bar .sp{flex:1}
+#tabs{display:flex;gap:6px}
+#tabs a{text-decoration:none;border:1px solid var(--ink-3);padding:5px 9px 4px;white-space:nowrap}
+#tabs a[aria-current="page"]{border-color:var(--amber);color:var(--amber)}
+#bar .nav{display:flex;gap:6px}
+#bar .nav a{text-decoration:none;border:1px solid var(--ink-3);padding:5px 8px 4px;white-space:nowrap}
+#frameWrap{position:relative;min-height:0}
+#frame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:var(--paper)}
+#frameLoad{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);transition:opacity .4s}
+#frameLoad.out{opacity:0}
+body.viewing{overflow:hidden}
+#viewer[hidden],[hidden]{display:none!important}
+
+@media (max-width:860px){
+  .proj{grid-template-columns:44px minmax(0,1fr)}
+  .proj .thumb{grid-column:2;max-width:320px}
+  .proj .body{grid-column:2}
+  .proj .no{font-size:24px}
+  .how{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:640px){
+  header.top{grid-template-columns:minmax(0,1fr)}
+  .tblock{min-width:0}
+  #bar .nav, #bar .t{display:none}
+  #tabs a{padding:5px 7px 4px}
+  .view{min-width:0;flex:1 1 140px}
+}
+@media (prefers-reduced-motion:reduce){ .view, #frameLoad{transition:none} }
+</style>
+
+<div class="reg tl"><i></i></div><div class="reg tr"><i></i></div><div class="reg bl"><i></i></div><div class="reg br"><i></i></div>
+
+<div id="sketch" aria-hidden="true"><i></i><i></i><b>Background · Yousef The First, ground floor, traced</b></div>
+
+<main id="home">
+  <header class="top">
+    <div>
+      <p class="kicker">Architecture · Riyadh · drawing register</p>
+      <h1>Built by <span>Yousef</span></h1>
+      <p class="lede">Houses drawn first and then built live in your browser. Every project here is its own model: open one to walk through it, watch it go up week by week, or read its plan and section.</p>
+    </div>
+    <div class="tblock" aria-label="Title block">
+      <div><span>Register</span><b id="countT">00 projects</b></div>
+      <div><span>Sheets</span><b id="sheetsT">00</b></div>
+      <div><span>Updated</span><b>19.11.2026</b></div>
+    </div>
+  </header>
+
+  <section aria-labelledby="regH">
+    <h2 class="sec-h" id="regH"><b>Projects</b><span>Newest first</span></h2>
+    <div class="projects" id="projects"></div>
+  </section>
+
+  <section class="how" aria-label="How to use these pages">
+    <div><b>Open a project</b>Pick a view. It opens full-screen under this sheet bar, and the address keeps its name, so you can send it to someone.</div>
+    <div><b>Inside a project</b>Scroll, drag or press play, depending on the project. Every project explains its own controls on its first screen.</div>
+    <div><b>Back to the register</b>Use “All projects” in the bar, the browser’s back button, or Esc.</div>
+  </section>
+
+  <footer><span>Built by Yousef · Riyadh</span><span>Models rendered with three.js · materials drawn in code</span></footer>
+</main>
+
+<div id="viewer" hidden>
+  <div id="bar">
+    <button class="home" type="button" id="homeBtn">← All projects</button>
+    <span class="t" id="barTitle"></span>
+    <span class="sp"></span>
+    <nav id="tabs" aria-label="Views of this project"></nav>
+    <div class="share" id="barShare"></div>
+    <nav class="nav" aria-label="Other projects"><a id="prevP" href="#">‹ Prev</a><a id="nextP" href="#">Next ›</a></nav>
+  </div>
+  <div id="frameWrap">
+    <iframe id="frame" title="Project" allow="fullscreen; autoplay" referrerpolicy="no-referrer"></iframe>
+    <div id="frameLoad">Opening the drawing…</div>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   THE REGISTER — one entry per project. To host a new project:
+   1. put its page(s) in projects/<slug>/ (any plain HTML page works),
+   2. add an entry below. Each view gets its own link: …/#<view id>.
+   View ids: ASCII letters, digits and hyphens.
+   `plan` draws the thumbnail: rectangles [x0, z0, x1, z1] in metres,
+   `site` is the plot outline, `void` marks courts and pools.
+================================================================ */
+const PROJECTS = [
+  {
+    slug:'al-shafa-house', title:'Al Shafa House', place:'Al Shafa, Taif', year:'2026', size:'580 m² · 2 floors · 2,570 m',
+    desc:'A two-story granite house on the mountainside of Jabal Daka, inspired from AURA, The living sanctuary. Scroll: the plan on the architect’s desk rises into nine masses, they come down into place, the stone prints across them, the mountain arrives, and the camera walks in through the glass. Then change the hour and the weather, or walk the house yourself.',
+    views:[ { id:'al-shafa-house', label:'Scroll film', note:'Desk plan · nine masses · walk mode', file:'projects/al-shafa-house/index.html' } ],
+    site:[-15,-13,20,18],
+    plan:[[-13,-1.85,15,9.85],[-10.2,-11,-9,15],[16.7,1,17.5,7],[-9,-4,11,8]],
+    void:[[3.5,-8,17,-4.4],[-9,10,15,16]],
+  },
+  {
+    slug:'bayt-safar', title:'Bayt Safar', place:'Wadi Safar, Diriyah', year:'2026', size:'230 m² · one level · court 7 × 7 m',
+    desc:'بيت صفار. A court house in the Wadi Safar manner: sand render, fluted oak, travertine and triangle screens around a court with a reflecting pool and an olive tree. Walk it yourself in first person or play the tour through the living room, dining, bedroom and up the court stair to the roof, past date palms to the pool. A hand-sketched master plan shows the whole plot from above.',
+    views:[
+      { id:'bayt-safar',      label:'Walkthrough', note:'First-person walk · 75 s tour', file:'projects/bayt-safar/index.html' },
+      { id:'bayt-safar-plan', label:'Master plan', note:'Sketched top view · English and Arabic', file:'projects/bayt-safar/index.html#plan' },
+    ],
+    site:[-16,-8,34,26],
+    plan:[[0,0,18,5.5],[0,5.5,5.5,18],[5.5,12.5,18,18],[12.5,0,18,12.5]],
+    void:[[5.5,5.5,12.5,12.5],[21.5,4,25.5,14]],
+  },
+  {
+    slug:'a-house', title:'A House Built by Yousef', place:'Riyadh', year:'2026', size:'Plot 36 × 16 m · 2 floors',
+    desc:'A courtyard house drawn from the client’s ground floor. The plan rises into a walk through every room, a section opens through a dolly-zoom lens, and a 26-week programme builds it in order.',
+    views:[
+      { id:'a-house',       label:'Walkthrough',  note:'Plan, then section A–A', file:'projects/a-house/walk.html' },
+      { id:'a-house-build', label:'Construction', note:'26 weeks to handover',   file:'projects/a-house/build.html' },
+    ],
+    site:[-6,0,30.2,16.2],
+    plan:[[0,1.65,4.45,5.6],[4.45,5.6,11.3,6.8],[6.7,6.8,11.3,14.95],[1,10.3,6.7,14.95],[9.6,0,24.6,5.1],[19.6,5.1,24.5,6.9],[11.3,6.9,14,15],[28.2,8.1,30,14.7]],
+    void:[[5.7,0,10.1,5.6],[19.8,9.9,28,13],[-5.6,9.9,.9,15.6]],
+  },
+  {
+    slug:'yousef-the-first', title:'Yousef The First', place:'Riyadh', year:'2026', size:'650 m² · one level',
+    desc:'A courtyard house you enter through its own floor plan: the drawing becomes the house, room by room, from the reflecting pool at the door to the walled spa.',
+    views:[ { id:'yousef-the-first', label:'Walkthrough', note:'Seven rooms, one walk', file:'projects/yousef-the-first/index.html' } ],
+    site:[0,0,46,21],
+    plan:[[9,8,12.5,17],[8,1,17,8],[17,8,31,14.5],[31,1,39,8],[39,1,43.5,8],[2,9,9,17]],
+    void:[[17,1,23,8],[12.5,8,15,14],[22,15,36,19.5],[43.5,1,46,7]],
+  },
+  {
+    slug:'villa', title:'Villa Walkthrough', place:'—', year:'2026', size:'Plot 49 × 47 m · 3 floors',
+    desc:'A three-level villa built to scale from its plans. Walk it freely with the keyboard or by touch, jump between rooms, and switch any floor to its top-down plan.',
+    views:[ { id:'villa', label:'Free walk', note:'Basement · ground · first', file:'projects/villa/index.html' } ],
+    site:[0,0,49,47],
+    plan:[[8,8,41,22],[8,22,24,39],[24,26,41,39]],
+    void:[[26,9,38,20],[29,30,39,37]],
+  },
+  {
+    slug:'the-simple-house', title:'The Simple House', place:'Riyadh', year:'2026', size:'Plot 20 × 25 m · 2 floors',
+    desc:'A two-storey courtyard house on a 20 × 25 m plot, drawn with a Mexican hand: arches, timber beam ends and clay lattice. Study it as a white clay model, from the street, the courtyard and the garden, move the sun, then cut it open floor by floor with the furniture sketched in.',
+    views:[
+      { id:'simple-house',       label:'Clay model',  note:'Street-side aerial · five views', file:'projects/the-simple-house/model.html' },
+      { id:'simple-house-plans', label:'Floor plans', note:'Cut at 1.3 m · sketched furniture', file:'projects/the-simple-house/model.html#groundplan' },
+    ],
+    site:[0,0,20,25],
+    plan:[[2,5.5,18,10],[2,10,5,16],[12,10,18,16],[2,16,18,21.5],[5,10,12,11.5]],
+    void:[[5,11.5,12,16],[11.5,.3,18.5,5.2]],
+  },
+  {
+    slug:'al-kareem', title:'Al-Kareem Mosque', place:'Jeddah', year:'2026', size:'Prayer hall 27.6 × 13.7 m · minaret 26.6 m',
+    desc:'A mosque built straight from its SketchUp model. Scroll: the ground plan cut at 1.2 m rises into the building, the camera lands at the corner by the minaret, enters through the limestone porch and the walnut doors, walks under the bronze dome to the mihrab, then rises out over the lit building at dusk.',
+    views:[
+      { id:'al-kareem',      label:'Scroll walk', note:'Plan · porch · dome · mihrab · dusk', file:'projects/al-kareem/index.html' },
+      { id:'al-kareem-walk', label:'Walkthrough', note:'Free walk · outside and inside', file:'projects/al-kareem/walk/index.html' },
+      { id:'al-kareem-hijazi', label:'Hijazi edition', note:'Coastal Hijazi style · sketch perspectives', file:'projects/al-kareem/hijazi/index.html' },
+    ],
+    site:[0,2,66,50],
+    plan:[[19.2,18.7,51.1,35.8],[15.7,27.2,19,35.9],[11,37,46,44],[21,8,31,17],[22,10.8,26.5,15.4]],
+    void:[[3,16,15,34]],
+  },
+  {
+    slug:'arabia', title:'Arabia: The Cradle of the Heavenly Messages', place:'Arabian Peninsula', year:'2026', size:'16 chapters · 4 sources',
+    desc:'الجزيرة العربية مهد الرسالات السماوية. An interactive map of the prophets’ story from Adam to Muhammad ﷺ, set across Arabia. The map flies to each chapter, an animated scene rises from the place itself with a recorded narrator, an era timeline runs below, and a side panel compares the concept with the books of Mansour, Salibi and al-Rubaie.',
+    views:[ { id:'arabia', label:'Presentation', note:'Map · scenes · narrator · sources', file:'projects/arabia/index.html' } ],
+    site:[0,0,30,26],
+    plan:[[6,4,20,9],[8,9,26,15],[12,15,27,21],[16,21,24,24]],
+    void:[[1,6,8,24]],
+  },
+  {
+    slug:'another-one', title:'Another One by Yousef', place:'Riyadh', year:'2026', size:'Plot 12 × 28.8 m · ground, first and roof annex',
+    desc:'فيلا من ثلاثة أدوار. A three-level villa built to scale from its plans, furnished and lit room by room in a warm, dark finish. Fly over it from above, read each floor as a plan, or walk through it at eye height. Tap any room label to fly there, slide the time of day and the light warmth, and set each room to Bright, Focus, Cinema or Lights off. Arabic and English.',
+    views:[ { id:'another-one', label:'3D viewer', note:'Aerial · floor plans · walk-through', file:'projects/another-one/index.html' } ],
+    site:[0,0,12,28.8],
+    plan:[[1.2,4.5,10.8,15],[1.2,15,8.2,24.5]],
+    void:[[8.2,15,10.8,24.5],[1.2,25,10.8,28]],
+  },
+];
+
+/* ---------------- sharing: the site's public link + #view id ---------------- */
+const SITE_URL = 'https://claude.ai/artifact/QSM6nXgxm2BLKVUQiWNRUw';
+const linkOf = v => SITE_URL + '#' + v.id;
+let openPop = null;
+function closePop(){ if(!openPop) return; openPop.pop.hidden = true; openPop.btn.setAttribute('aria-expanded','false'); openPop = null; }
+function shareMenu(p, views, compact){
+  const wrap = document.createElement('div'); wrap.className = 'share';
+  const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'shareBtn'; btn.setAttribute('aria-expanded','false'); btn.setAttribute('aria-haspopup','dialog');
+  btn.innerHTML = '<b>Share</b><small>Copy a link</small>';
+  const pop = document.createElement('div'); pop.className = 'sharePop'; pop.hidden = true; pop.setAttribute('role','dialog'); pop.setAttribute('aria-label', 'Share ' + p.title);
+  const h = document.createElement('h3'); h.textContent = 'Share · ' + p.title; pop.appendChild(h);
+  views.forEach(v=>{
+    const row = document.createElement('div'); row.className = 'shareRow';
+    const lab = document.createElement('span'); lab.textContent = v.label;
+    const inp = document.createElement('input'); inp.readOnly = true; inp.value = linkOf(v); inp.setAttribute('aria-label', v.label + ' link');
+    inp.addEventListener('focus', ()=>inp.select());
+    const cp = document.createElement('button'); cp.type = 'button'; cp.textContent = 'Copy';
+    cp.addEventListener('click', async ()=>{
+      try{ await navigator.clipboard.writeText(inp.value); cp.textContent = 'Copied'; cp.classList.add('ok'); }
+      catch(e){ inp.focus(); inp.select(); cp.textContent = 'Selected · ⌘C'; }
+      setTimeout(()=>{ cp.textContent = 'Copy'; cp.classList.remove('ok'); }, 1800);
+    });
+    row.append(lab, inp, cp); pop.appendChild(row);
+  });
+  const v0 = views[0], text = p.title + ' — ' + v0.label + ' · Built by Yousef';
+  const soc = document.createElement('div'); soc.className = 'socials';
+  [['WhatsApp', 'https://wa.me/?text=' + encodeURIComponent(text + ' ' + linkOf(v0))],
+   ['X', 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(linkOf(v0))],
+   ['LinkedIn', 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(linkOf(v0))]]
+   .forEach(([n,u])=>{ const a = document.createElement('a'); a.href = u; a.target = '_blank'; a.rel = 'noopener'; a.textContent = n + ' ↗'; soc.appendChild(a); });
+  pop.appendChild(soc);
+  const note = document.createElement('p'); note.textContent = 'Anyone with the link can open it. Each link opens straight into that view.'; pop.appendChild(note);
+  btn.addEventListener('click', e=>{ e.stopPropagation(); const was = openPop && openPop.pop === pop; closePop(); if(!was){ pop.hidden = false; btn.setAttribute('aria-expanded','true'); openPop = { pop, btn };
+      pop.style.left = '0px'; pop.style.right = 'auto';
+      const r = pop.getBoundingClientRect(), over = r.right - (document.documentElement.clientWidth - 12);
+      if(over > 0) pop.style.left = Math.max(-btn.getBoundingClientRect().left + 12, -over) + 'px'; } });
+  pop.addEventListener('click', e=>e.stopPropagation());
+  wrap.append(btn, pop); return wrap;
+}
+addEventListener('click', closePop);
+addEventListener('keydown', e=>{ if(e.key === 'Escape' && openPop){ const b = openPop.btn; closePop(); b.focus(); e.stopImmediatePropagation(); } }, true);
+
+/* ---------------- register rendering ---------------- */
+const $ = s => document.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+const ROUTES = new Map(); PROJECTS.forEach((p,pi)=>p.views.forEach((v,vi)=>ROUTES.set(v.id, { p, v, pi, vi })));
+function thumb(p){
+  const [sx0,sz0,sx1,sz1] = p.site, W = 300, H = 200, pad = 18, k = Math.min((W-2*pad)/(sx1-sx0), (H-2*pad)/(sz1-sz0));
+  const ox = (W - (sx1-sx0)*k)/2 - sx0*k, oz = (H - (sz1-sz0)*k)/2 - sz0*k;
+  const svg = document.createElementNS(NS,'svg'); svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.setAttribute('class','thumb'); svg.setAttribute('role','img'); svg.setAttribute('aria-label', `Key plan of ${p.title}`);
+  const r = (x0,z0,x1,z1,a)=>{ const e = document.createElementNS(NS,'rect'); Object.entries(Object.assign({ x:ox+x0*k, y:oz+z0*k, width:(x1-x0)*k, height:(z1-z0)*k }, a)).forEach(([n,v])=>e.setAttribute(n,v)); svg.appendChild(e); };
+  for(let x=0;x<W;x+=12) for(let y=0;y<H;y+=12){ const d = document.createElementNS(NS,'rect'); d.setAttribute('x',x); d.setAttribute('y',y); d.setAttribute('width',.8); d.setAttribute('height',.8); d.setAttribute('fill','rgba(29,28,25,.18)'); svg.appendChild(d); }
+  r(...p.site, { fill:'none', stroke:'#1d1c19', 'stroke-width':1.2 });
+  p.void.forEach(v=>r(...v, { fill:'none', stroke:'#1d1c19', 'stroke-width':.8, 'stroke-dasharray':'3 2' }));
+  p.plan.forEach(v=>r(...v, { fill:'rgba(29,28,25,.13)', stroke:'#1d1c19', 'stroke-width':1.4 }));
+  const ln = document.createElementNS(NS,'line'); Object.entries({ x1:8, y1:H-8, x2:8+5*k, y2:H-8, stroke:'#e85d04', 'stroke-width':2 }).forEach(([n,v])=>ln.setAttribute(n,v)); svg.appendChild(ln);
+  const tx = document.createElementNS(NS,'text'); Object.entries({ x:12+5*k, y:H-5, 'font-size':8, 'font-family':'IBM Plex Mono, monospace', fill:'#1d1c19' }).forEach(([n,v])=>tx.setAttribute(n,v)); tx.textContent = '5 m'; svg.appendChild(tx);
+  return svg;
+}
+function renderRegister(){
+  const list = $('#projects'); list.textContent = '';
+  PROJECTS.forEach((p,i)=>{
+    const art = document.createElement('article'); art.className = 'proj'; art.id = 'p-' + p.slug;
+    const no = document.createElement('div'); no.className = 'no'; no.textContent = String(i+1).padStart(2,'0');
+    const body = document.createElement('div'); body.className = 'body';
+    body.innerHTML = `<h2></h2><p class="meta"><span></span><span></span><span></span></p><p class="desc"></p><div class="views"></div>`;
+    body.querySelector('h2').textContent = p.title;
+    const m = body.querySelectorAll('.meta span'); m[0].textContent = p.place; m[1].textContent = p.year; m[2].textContent = p.size;
+    body.querySelector('.desc').textContent = p.desc;
+    p.views.forEach((v,vi)=>{ const a = document.createElement('a'); a.className = 'view' + (vi===0 ? ' main-view' : ''); a.href = '#' + v.id;
+      a.innerHTML = `<b></b><small></small>`; a.querySelector('b').textContent = v.label + ' →'; a.querySelector('small').textContent = v.note; body.querySelector('.views').appendChild(a); });
+    body.querySelector('.views').appendChild(shareMenu(p, p.views));
+    art.append(no, thumb(p), body); list.appendChild(art);
+  });
+  $('#countT').textContent = String(PROJECTS.length).padStart(2,'0') + ' projects';
+  $('#sheetsT').textContent = String(ROUTES.size).padStart(2,'0');
+}
+
+/* ---------------- routing: #<view id> opens that view in the frame ---------------- */
+const viewer = $('#viewer'), frame = $('#frame'), load = $('#frameLoad');
+let current = null;
+function show(route){
+  const r = ROUTES.get(route);
+  if(!r){ // the register
+    closePop(); viewer.hidden = true; document.body.classList.remove('viewing'); document.title = 'Built by Yousef';
+    if(current){ frame.src = 'about:blank'; current = null; }
+    return;
+  }
+  viewer.hidden = false; document.body.classList.add('viewing');
+  document.title = r.v.label + ' · ' + r.p.title;
+  $('#barTitle').textContent = r.p.title;
+  const tabs = $('#tabs'); tabs.textContent = '';
+  if(r.p.views.length > 1) r.p.views.forEach(v=>{ const a = document.createElement('a'); a.href = '#' + v.id; a.textContent = v.label; if(v.id === route) a.setAttribute('aria-current','page'); tabs.appendChild(a); });
+  const bs = $('#barShare'); bs.textContent = ''; bs.appendChild(shareMenu(r.p, [r.v, ...r.p.views.filter(v=>v !== r.v)], true));
+  const n = PROJECTS.length, prev = PROJECTS[(r.pi - 1 + n) % n], next = PROJECTS[(r.pi + 1) % n];
+  $('#prevP').href = '#' + prev.views[0].id; $('#prevP').title = prev.title;
+  $('#nextP').href = '#' + next.views[0].id; $('#nextP').title = next.title;
+  if(current !== route){ current = route; load.classList.remove('out'); frame.title = r.v.label + ' — ' + r.p.title; frame.src = r.v.file; }
+  frame.focus({ preventScroll:true });
+}
+frame.addEventListener('load', ()=>{ if(current) load.classList.add('out'); });
+const route = ()=> location.hash.replace(/^#/, '');
+addEventListener('hashchange', ()=>show(route()));
+$('#homeBtn').addEventListener('click', ()=>{ location.hash = ''; show(''); });
+addEventListener('keydown', e=>{ if(e.key === 'Escape' && current) { location.hash = ''; show(''); } });
+/* a project page can ask the site to open another view: parent.postMessage({ go:'<view id>' }, '*') */
+addEventListener('message', e=>{ if(e.source === frame.contentWindow && e.data && typeof e.data.go === 'string' && ROUTES.has(e.data.go)) location.hash = e.data.go; });
+
+renderRegister();
+show(route());
+</script>
+
+
+
+</body></html>

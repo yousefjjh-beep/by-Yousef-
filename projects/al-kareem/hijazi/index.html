@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Al-Kareem Mosque — Coastal Hijazi edition</title>
+<style>
+  :root { --paper:#f7f3ea; --ink:#4a372a; --soft:#8a7868; --line:#d9cfbd; --wood:#a9825a; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:"Noto Naskh Arabic","Geeza Pro","Segoe UI",Tahoma,sans-serif; line-height:1.8; }
+  header { max-width:1180px; margin:0 auto; padding:56px 24px 20px; }
+  .kicker { color:var(--wood); font-size:14px; letter-spacing:.04em; }
+  h1 { margin:6px 0 10px; font-size:clamp(28px,4.4vw,46px); font-weight:700; line-height:1.3; }
+  header p { max-width:62ch; margin:0; color:var(--soft); font-size:17px; }
+  main { max-width:1180px; margin:0 auto; padding:12px 24px 72px; }
+  figure { margin:36px 0 0; }
+  figure button { display:block; width:100%; padding:0; border:1px solid var(--line); background:none; cursor:zoom-in; border-radius:2px; overflow:hidden; }
+  figure img { display:block; width:100%; height:auto; }
+  figcaption { display:flex; gap:14px; align-items:baseline; padding:10px 2px 0; font-size:16px; }
+  figcaption b { color:var(--wood); font-weight:700; font-variant-numeric:tabular-nums; }
+  figcaption span { color:var(--soft); }
+  .notes { margin-top:56px; padding-top:22px; border-top:1px solid var(--line); display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:22px 34px; }
+  .notes h2 { margin:0 0 4px; font-size:16px; color:var(--wood); }
+  .notes p { margin:0; font-size:15px; color:var(--ink); }
+  footer { max-width:1180px; margin:0 auto; padding:0 24px 48px; color:var(--soft); font-size:13px; }
+  dialog { border:0; padding:0; background:var(--paper); max-width:96vw; max-height:96vh; }
+  dialog::backdrop { background:rgba(40,28,20,.82); }
+  dialog img { display:block; max-width:96vw; max-height:96vh; cursor:zoom-out; }
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">مسجد الكريم · إصدار العمارة الحجازية الساحلية</div>
+  <h1>مناظير المشروع</h1>
+  <p>نفس المساقط والمساحات، بإخراج يتبع الدليل: دهان جيري أبيض، مشربيات مجردة على النوافذ، حجر في أسفل الجدار فقط، وروشان كبير على كل واجهة جانبية، وآخر في زاوية المبنى الخلفي.</p>
+</header>
+<main>
+  <figure><button><img src="img/01.jpg" alt="منظور عام للمسجد والمئذنة من الزاوية الجنوبية الشرقية"></button><figcaption><b>01</b>المنظور العام <span>من الزاوية الجنوبية الشرقية</span></figcaption></figure>
+  <figure><button><img src="img/02.jpg" alt="واجهة القبلة مع المئذنة والقبة"></button><figcaption><b>02</b>واجهة القبلة <span>المئذنة والقبة وسترة السطح</span></figcaption></figure>
+  <figure><button><img src="img/03.jpg" alt="الواجهة الشرقية والمدخل الجانبي"></button><figcaption><b>03</b>الواجهة الشرقية <span>الروشان الكبير والمدخل الجانبي</span></figcaption></figure>
+  <figure><button><img src="img/04.jpg" alt="تاج المئذنة الخشبي"></button><figcaption><b>04</b>تاج المئذنة <span>خشب في الأعلى فقط، والبدن سادة</span></figcaption></figure>
+  <figure><button><img src="img/05.jpg" alt="المبنى الخلفي والروشان في الزاوية"></button><figcaption><b>05</b>المبنى الخلفي <span>روشان الزاوية</span></figcaption></figure>
+  <figure><button><img src="img/06.jpg" alt="منظور علوي للموقع"></button><figcaption><b>06</b>منظور علوي <span>الموقع العام والمواقف</span></figcaption></figure>
+  <figure><button><img src="img/07.jpg" alt="الواجهة الغربية والروشان الكبير"></button><figcaption><b>07</b>الواجهة الغربية <span>نفس المعالجة في الجهة المقابلة</span></figcaption></figure>
+  <section class="notes">
+    <div><h2>الجدران</h2><p>دهان جيري أبيض RAL 9016، والحجر في أسفل الجدار فقط.</p></div>
+    <div><h2>النوافذ</h2><p>مشربيات خشبية مجردة، وروشان كبير من شرائح رأسية على كل واجهة جانبية ينزل إلى الأرض.</p></div>
+    <div><h2>المئذنة</h2><p>بدن سادة مدهون، وتاج خشبي في القمة على هيئة مبيت السطح الجداوي.</p></div>
+    <div><h2>السطح</h2><p>سترة بشرف مبسطة وأحزمة خشبية أفقية على الواجهات.</p></div>
+  </section>
+</main>
+<footer>المرجع: دليل العمارة الحجازية الساحلية، الإصدار 1.0.</footer>
+<dialog id="lb"><img alt=""></dialog>
+<script>
+  const lb = document.getElementById('lb'), big = lb.querySelector('img');
+  document.querySelectorAll('figure button').forEach((b) => b.addEventListener('click', () => { const i = b.querySelector('img'); big.src = i.src; big.alt = i.alt; lb.showModal(); }));
+  lb.addEventListener('click', () => lb.close());
+</script>
+</body>
+</html>

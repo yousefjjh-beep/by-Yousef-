@@ -1,0 +1,64 @@
+{
+ "classes": {
+  "plaster": {
+   "offset": 0,
+   "count": 6150
+  },
+  "plaster_in": {
+   "offset": 196800,
+   "count": 1572
+  },
+  "stone": {
+   "offset": 247104,
+   "count": 3531
+  },
+  "stone_in": {
+   "offset": 360096,
+   "count": 831
+  },
+  "roof": {
+   "offset": 386688,
+   "count": 1134
+  },
+  "roof_in": {
+   "offset": 422976,
+   "count": 300
+  },
+  "glass": {
+   "offset": 432576,
+   "count": 138
+  },
+  "paving": {
+   "offset": 436992,
+   "count": 1239
+  },
+  "wood": {
+   "offset": 476640,
+   "count": 42
+  },
+  "screen": {
+   "offset": 477984,
+   "count": 15
+  },
+  "dome": {
+   "offset": 478464,
+   "count": 29352
+  }
+ },
+ "bounds": {
+  "min": [
+   -30.763032199999998,
+   0.6028475859396351,
+   -67.1570732289285
+  ],
+  "max": [
+   8.3011,
+   21.6087,
+   -20.0381
+  ]
+ },
+ "axes": {
+  "angleDeg": 61,
+  "note": "building axes u,v in sketchup xy; world = (x, z, -y)"
+ }
+}

@@ -1,0 +1,215 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Yousef The First</title>
+<meta name="description" content="A courtyard house of 650 m² that you enter through its own floor plan. Scroll, and the drawing becomes the house, room by room.">
+<meta name="theme-color" content="#f4f1ea">
+<style>/* lenis base styles */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent],
+.lenis [data-lenis-prevent-wheel],
+.lenis [data-lenis-prevent-touch],
+.lenis [data-lenis-prevent-vertical],
+.lenis [data-lenis-prevent-horizontal] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+.lenis.lenis-autoToggle {
+  transition-property: overflow;
+  transition-duration: 1ms;
+  transition-behavior: allow-discrete;
+}
+</style>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/explore.css">
+<script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/" } }
+</script>
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <div class="loader" id="loader" role="status">
+    <p class="loader__place">Yousef The First<br>Ground floor · sheet A-101</p>
+    <div class="loader__story" aria-live="polite">
+      <p>This house exists only as a drawing.</p>
+      <p>Eighteen spaces and 650 m² around one olive tree.</p>
+      <p>Scroll, and walk into it.</p>
+    </div>
+    <div class="loader__bar"><span>Drawing</span><i><b id="loadFill"></b></i><span id="loadPct">0%</span></div>
+    <p class="loader__note">Built live in your browser · best on a laptop</p>
+  </div>
+
+  <header class="topbar">
+    <a class="mark" href="#" data-walk-to="start">Yousef The First</a>
+    <nav class="topbar__nav" aria-label="Site">
+      <button type="button" id="roomsBtn" aria-expanded="false" aria-controls="index">Rooms</button>
+      <a class="pill" href="#house" data-walk-to="house">The house</a>
+    </nav>
+  </header>
+  <p class="count" id="count" aria-live="polite"><b>00</b> / 07 rooms</p>
+
+  <!-- the printed sheet: frame, headline, title block -->
+  <div class="sheet" data-from="-1" data-to="0.15">
+    <div class="frame"></div>
+    <section class="hero" aria-label="Yousef The First, ground floor plan">
+      <p class="hero__kicker">Yousef The First <span>·</span> courtyard house <span>·</span> 2026</p>
+      <h1 class="hero__title">
+        <span class="mask"><span>A house you</span></span>
+        <span class="mask"><span>enter through</span></span>
+        <span class="mask"><span>its <em>drawing.</em></span></span>
+      </h1>
+      <p class="hero__lede">650 m² on one level, drawn at 1:200 and cut at 1.20 m. Scroll, and the walls rise. Tap a numbered room to read about it.</p>
+    </section>
+    <div class="titleblock">
+      <div><span>Project</span>Yousef The First</div>
+      <div><span>Drawing</span>Ground floor plan</div>
+      <div><span>Cut</span>+1.20 m</div>
+      <div><span>Scale</span>1:200</div>
+      <div><span>Sheet</span>A-101</div>
+      <div><span>Date</span>10 · 2026</div>
+    </div>
+  </div>
+
+  <div class="spots" id="spots"></div>
+
+  <nav class="ruler" id="ruler" aria-label="Walk to a room"><div class="ruler__now" id="rulerNow"></div></nav>
+
+  <div class="hint" id="hint" aria-hidden="true">
+    <span>Scroll to walk in</span>
+    <i><b id="hintFill"></b></i>
+  </div>
+
+  <!-- chapter captions, shown along the walk -->
+  <aside class="cap light" data-from="0.13" data-to="0.33">
+    <b>The drawing is the building</b>
+    <span>Every line on the sheet is an edge of the model, cut at 1.20 m. Lift the cut and the walls rise.</span>
+  </aside>
+  <aside class="cap" data-from="0.40" data-to="0.56">
+    <i>01</i><b>Arrival</b>
+    <span>Four travertine steps across still water to a 3.6 m oak pivot door.</span>
+    <button type="button" class="cap__file" data-room="arrival">Room file</button>
+  </aside>
+  <aside class="cap" data-from="0.58" data-to="0.71">
+    <i>02</i><b>Entry gallery</b>
+    <span>3.50 × 9.00 m · ceiling 4.20 m · honed travertine · light court to the east.</span>
+    <button type="button" class="cap__file" data-room="gallery">Room file</button>
+  </aside>
+  <aside class="cap" data-from="0.76" data-to="1.05">
+    <i>03</i><b>Living room</b>
+    <span>9.00 × 7.00 m · 6.00 m high · west clerestory catches the last sun.</span>
+    <button type="button" class="cap__file" data-room="living">Room file</button>
+  </aside>
+
+  <aside class="cap" data-from="1.12" data-to="1.42">
+    <i>04</i><b>Dining &amp; kitchen</b>
+    <span>14.50 m of open room · ten seats under a bronze line · a 4 m waterfall island in travertine.</span>
+    <button type="button" class="cap__file" data-room="dining">Room file</button>
+  </aside>
+  <aside class="cap" data-from="1.47" data-to="1.74">
+    <i>05</i><b>Terrace &amp; pool</b>
+    <span>The glass slides away · a covered terrace of 4.50 × 11.00 m · a 14 m pool in the last light.</span>
+    <button type="button" class="cap__file" data-room="terrace">Room file</button>
+  </aside>
+  <aside class="cap" data-from="1.82" data-to="2.06">
+    <i>06</i><b>Master suite</b>
+    <span>8.00 × 6.00 m · oak floor · the glass opens straight onto the water.</span>
+    <button type="button" class="cap__file" data-room="master">Room file</button>
+  </aside>
+
+  <aside class="cap" data-from="2.08" data-to="2.40">
+    <i>07</i><b>Bath &amp; spa</b>
+    <span>A stone bath under a skylight · a rain shower in basalt · the glass slides onto a sunken spa.</span>
+    <button type="button" class="cap__file" data-room="bath">Room file</button>
+  </aside>
+
+  <!-- the closing sheet: same drawing, now built -->
+  <div class="sheet closing" data-from="2.66" data-to="99">
+    <div class="frame"></div>
+    <header class="title">
+      <h1>Yousef The First</h1>
+      <p>The same drawing, built.<br>650 m² on one level · seven rooms, one unbroken walk.</p>
+    </header>
+    <div class="titleblock">
+      <div><span>Project</span>Yousef The First</div>
+      <div><span>Drawing</span>Ground floor, as built</div>
+      <div><span>Cut</span>+1.20 m</div>
+      <div><span>Scale</span>1:200</div>
+      <div><span>Sheet</span>A-101 · Rev B</div>
+      <button type="button" data-again><span>Again</span>Walk it again ↺</button>
+    </div>
+  </div>
+
+  <div id="scroll"></div>
+
+  <section class="house" id="house" aria-labelledby="houseTitle">
+    <p class="house__ghost" aria-hidden="true">Yousef</p>
+    <div class="house__inner">
+      <p class="eyebrow">A-101 <span>·</span> ground floor, as built</p>
+      <h2 class="house__title" id="houseTitle">Drawn first.<br><em>Then walked.</em></h2>
+      <p class="house__lede">Yousef The First is a design study for a single-storey courtyard house: a gallery lit from a light court, a living room six metres tall, one long room for cooking and eating, a fourteen metre pool, and a master wing that ends in a walled spa. Every surface you walked past is drawn here at 1:200 before anything is built.</p>
+
+      <dl class="specs">
+        <div><dt>Floor area</dt><dd>650 m²</dd></div>
+        <div><dt>Footprint</dt><dd>46 × 21 m</dd></div>
+        <div><dt>Spaces</dt><dd>18</dd></div>
+        <div><dt>Ceilings</dt><dd>3.40–6.00 m</dd></div>
+        <div><dt>Pool</dt><dd>14.00 × 4.50 m</dd></div>
+        <div><dt>Plan cut</dt><dd>+1.20 m</dd></div>
+      </dl>
+
+      <ol class="schedule" aria-label="Rooms on the walk">
+        <li><button type="button" data-walk-to="0.43"><i>01</i><b>Arrival</b><span>Oak pivot door, 1.80 × 3.60 m</span></button></li>
+        <li><button type="button" data-walk-to="0.62"><i>02</i><b>Entry gallery</b><span>3.50 × 9.00 m · 4.20 m</span></button></li>
+        <li><button type="button" data-walk-to="0.84"><i>03</i><b>Living room</b><span>9.00 × 7.00 m · 6.00 m</span></button></li>
+        <li><button type="button" data-walk-to="1.2"><i>04</i><b>Dining &amp; kitchen</b><span>14.50 × 8.00 m · 4.20 m</span></button></li>
+        <li><button type="button" data-walk-to="1.52"><i>05</i><b>Terrace &amp; pool</b><span>Pool 14.00 × 4.50 m</span></button></li>
+        <li><button type="button" data-walk-to="1.86"><i>06</i><b>Master suite</b><span>8.00 × 6.00 m · 3.80 m</span></button></li>
+        <li><button type="button" data-walk-to="2.2"><i>07</i><b>Bath &amp; spa</b><span>4.50 × 6.00 m · spa 2.20 m</span></button></li>
+      </ol>
+
+      <div class="house__cta">
+        <button type="button" class="pill pill--solid" data-again>Walk it again</button>
+        <button type="button" class="link" id="roomsBtn2">Read the room files</button>
+      </div>
+    </div>
+    <div class="house__meta">
+      <span>Sheet A-101 · Rev B · 1:200</span>
+      <span>Rendered live in your browser with three.js</span>
+      <span>Materials generated in code</span>
+      <span>Yousef The First is a design study, not a listing</span>
+    </div>
+  </section>
+
+  <aside class="drawer file" id="file" data-lenis-prevent role="dialog" aria-modal="false" aria-hidden="true" aria-labelledby="fileTitle">
+    <div class="drawer__top"><p class="file__no" id="fileNo"></p><button type="button" class="drawer__close" id="fileClose">Close ×</button></div>
+    <h3 class="file__title" id="fileTitle"></h3>
+    <p class="file__meta" id="fileMeta"></p>
+    <p class="file__text" id="fileText"></p>
+    <dl class="file__facts" id="fileFacts"></dl>
+    <button type="button" class="pill pill--solid file__walk" id="fileWalk">Walk here</button>
+  </aside>
+
+  <aside class="drawer index" id="index" data-lenis-prevent aria-label="Rooms on the walk">
+    <div class="drawer__top"><p class="file__no">Seven rooms, in walking order</p><button type="button" class="drawer__close" id="indexClose">Close ×</button></div>
+    <h3 class="file__title">Rooms</h3>
+    <ol class="index__list" id="indexList"></ol>
+  </aside>
+
+  <div class="nogl" id="nogl" hidden><p>This page builds the house live and needs a browser with WebGL 2.</p></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/ui.js"></script>
+
+</body></html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Mosque walkthrough</title>
+<style>
+html,body{margin:0;height:100%;background:#111;overflow:hidden;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#f3efe6}
+canvas{display:block;touch-action:none}
+#hud{position:fixed;left:16px;bottom:16px;right:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;pointer-events:none}
+#hud button{pointer-events:auto;background:rgba(20,22,26,.62);color:#f3efe6;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:8px 14px;font-size:13px;cursor:pointer;backdrop-filter:blur(6px)}
+#hud button:hover{background:rgba(60,52,40,.8)}
+#help{position:fixed;top:14px;left:16px;font-size:12.5px;line-height:1.5;background:rgba(20,22,26,.5);padding:8px 12px;border-radius:10px;backdrop-filter:blur(6px);max-width:320px}
+#help b{font-weight:600}
+#load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#14161a;font-size:15px;letter-spacing:.04em;transition:opacity .6s}
+#stick{position:fixed;left:24px;bottom:84px;width:110px;height:110px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(20,22,26,.3);display:none;touch-action:none}
+#stick i{position:absolute;left:35px;top:35px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.5)}
+#fact{position:fixed;right:clamp(18px,4vw,56px);bottom:clamp(22px,7vh,72px);direction:rtl;text-align:right;pointer-events:none;color:#fbf7ee;text-shadow:0 2px 24px rgba(0,0,0,.55),0 0 2px rgba(0,0,0,.4);opacity:0;transform:translateY(14px);transition:opacity .9s ease,transform .9s ease;max-width:min(78vw,520px)}
+#fact.on{opacity:1;transform:none}
+#fact .n{font-size:clamp(64px,11vw,148px);font-weight:200;line-height:.95;letter-spacing:-.02em;font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;display:inline-block}
+#fact .u{font-size:clamp(18px,2.4vw,30px);font-weight:300;margin-inline-start:.35em;opacity:.9}
+#fact .l{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.45);font-size:clamp(15px,1.6vw,19px);font-weight:500}
+#fact .s{font-size:clamp(12.5px,1.25vw,15px);opacity:.82;margin-top:2px}
+@media (prefers-reduced-motion:reduce){#fact{transition:opacity .2s;transform:none}}
+body.shot #fact{display:none!important}
+body.shot #hud,body.shot #help,body.shot #stick{display:none!important}
+@media (pointer:coarse){#stick{display:block}#help .desk{display:none}}
+</style>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
+</head><body>
+<div id="load">Loading the mosque…</div>
+<div id="help"><span class="desk"><b>Walk:</b> W A S D or arrow keys · <b>Look:</b> drag the mouse · <b>Shift:</b> faster</span><span class="touch"> · On touch: left pad walks, drag looks</span></div>
+<div id="stick"><i></i></div>
+<div id="hud"></div>
+<div id="fact" aria-live="polite"><div><span class="n"></span><span class="u"></span></div><div class="l"></div><div class="s"></div></div>
+<script>
+// Project facts that surface as the visitor moves: each figure belongs to a place and fades when the visitor leaves it.
+(() => { const el = document.getElementById('fact'), N = el.querySelector('.n'), U = el.querySelector('.u'), L = el.querySelector('.l'), S = el.querySelector('.s');
+  const F = { area: [377, 0, 'م²', 'مساحة مصلى الرجال', 'الدور الأرضي · 27.6 × 13.7 م'], cap: [500, 0, '', 'مصلٍّ على الأقل', 'سعة المسجد'], land: [1056, 0, 'م²', 'مساحة الأرض', 'حي الياقوت، جدة · 32 × 33 م'], dome: [6.9, 1, 'م', 'قطر القبة', 'فوق مركز المصلى'], mezz: [126, 0, 'م²', 'الميزانين · مصلى النساء', 'مساحة تقريبية حسب التصميم المقترح'], ceil: [7.2, 1, 'م', 'ارتفاع السقف', 'من أرضية المصلى'],
+    min: [26.6, 1, 'م', 'ارتفاع المئذنة', 'ارتفاع تقريبي من منسوب الأرض'], door: [3, 0, '', 'مداخل', 'مدخلان جانبيان ومدخل خلفي'], park: [90, 0, '', 'موقفًا تقريبًا', 'منها 6 لذوي الإعاقة قرب المداخل'], house: [2, 0, '', 'دوران · سكن الإمام والمؤذن', 'مبنى سكني خلف المسجد، أرضي وأول'] };
+  const seg = (x, z, ax, az, bx, bz) => { const dx = bx - ax, dz = bz - az, t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / (dx * dx + dz * dz))); return Math.hypot(x - ax - dx * t, z - az - dz * t); };
+  const where = (x, z) => { if (x > -13.8 && x < 13.75 && z > -10.55 && z < 3.14) { if (Math.hypot(x, z) < 3.2) return 'dome'; if (z < -6.2) return 'mezz'; if (z > 0.2 && Math.abs(x) > 4.5) return 'ceil'; if (z > -2.2) return 'cap'; return 'area'; }
+    if (Math.hypot(x + 9.7, z - 8.3) < 16) return 'min'; if (Math.hypot(x - 16.5, z + 6.7) < 5 || Math.hypot(x + 16.5, z + 6.7) < 5 || Math.hypot(x + 1.45, z + 13) < 4) return 'door';
+    if (seg(x, z, -22, -13.3, 8.9, -23.5) < 9) return 'house'; if (x > 30 || (z > 22 && x > -28) || (x < -14 && z < -22)) return 'park'; return 'land'; };
+  let cur = null, shown = null, since = 0, raf = 0;
+  const count = (to, dec) => { cancelAnimationFrame(raf); const t0 = performance.now(), still = matchMedia('(prefers-reduced-motion:reduce)').matches; const step = (t) => { const k = still ? 1 : Math.min(1, (t - t0) / 1100), e = 1 - Math.pow(1 - k, 3); N.textContent = (to * e).toFixed(dec); if (k < 1) raf = requestAnimationFrame(step); }; raf = requestAnimationFrame(step); };
+  const tick = (t) => { requestAnimationFrame(tick); const c = window.__cam; if (!c || !window.__ready) return; const k = where(c.position.x, c.position.z);
+    if (k !== cur) { cur = k; since = t; el.classList.remove('on'); }
+    if (cur && shown !== cur && t - since > 650) { const f = F[cur]; shown = cur; U.textContent = f[2]; L.textContent = f[3]; S.textContent = f[4]; count(f[0], f[1]); el.classList.add('on'); }
+    else if (cur && shown === cur && t - since > 650) el.classList.add('on');
+    if (!cur && t - since > 900) shown = null; };
+  requestAnimationFrame(tick); })();
+</script>
+<script type="module" src="./js/main.js"></script>
+</body></html>

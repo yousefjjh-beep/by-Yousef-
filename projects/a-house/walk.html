@@ -1,0 +1,1863 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>A House Built by Yousef</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one fixed CAD viewport (WebGL sheet + projected SVG notes + HUD chrome); the page scroll only drives the camera. */
+:root{
+  --paper:#f2efe7; --ink:#1d1c19; --amber:#e85d04;
+  --ink-2:rgba(29,28,25,.62); --ink-3:rgba(29,28,25,.34); --rule:rgba(29,28,25,.18);
+  --f-head:"Chakra Petch","Rajdhani","Arial Narrow",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --edge:clamp(14px,2.2vw,28px);
+  color-scheme:light;
+}
+html,body{background:var(--paper);color:var(--ink)}
+body{font-family:var(--f-mono);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0;overflow-x:hidden}
+#ch2{height:2400vh}
+#ch1{height:1300vh}
+#stage{position:fixed;inset:0;overflow:hidden}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+.notes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.notes text{font-family:var(--f-mono);fill:var(--ink)}
+.notes .n-grid{stroke:rgba(29,28,25,.24);stroke-width:.7;stroke-dasharray:14 3 2 3;fill:none}
+.notes .n-bub{stroke:var(--ink-2);stroke-width:.8;fill:var(--paper)}
+.notes .n-bubt{font-size:11px;font-weight:400;fill:var(--ink-2)!important;text-anchor:middle;dominant-baseline:central}
+.notes .n-thin{stroke:var(--ink-2);stroke-width:.6;fill:none}
+.notes .n-tick{stroke:var(--ink-2);stroke-width:1.1}
+.notes .n-lvl{fill:none;stroke:var(--ink-2);stroke-width:.8}
+.notes .n-small{font-size:10px;letter-spacing:.04em}
+.notes .n-dim{font-size:10px;text-anchor:middle}
+.notes .n-room{font-size:11px;font-weight:400;letter-spacing:.12em;text-anchor:middle}
+.notes .n-roomsub{font-size:9px;letter-spacing:.06em;text-anchor:middle;fill:var(--ink-2);opacity:var(--sub,1)}
+.notes .n-sun{stroke:var(--amber);stroke-width:1.3;stroke-dasharray:7 5;fill:none}
+.notes .n-sunsym{stroke:var(--amber);stroke-width:1.2;fill:var(--paper)}
+.notes .n-sunt{fill:var(--amber);font-size:10px;font-weight:500;letter-spacing:.06em}
+.notes .n-axis{stroke:var(--amber);stroke-width:.9;stroke-dasharray:2 4;fill:none}
+.notes .n-sec{stroke:var(--amber);stroke-width:1.2;stroke-dasharray:16 4 3 4;fill:none}
+.notes .n-secA{fill:var(--amber);stroke:none}
+.notes .n-can{stroke:var(--ink-3);stroke-width:.8;stroke-dasharray:3 3;fill:none}
+.notes .n-north{stroke:var(--ink);stroke-width:1;fill:none}
+.notes .n-northf{fill:var(--ink);stroke:none}
+.notes .n-title{font-size:11px;letter-spacing:.16em;fill:var(--ink)}
+.notes .n-axt{fill:var(--amber);font-size:10px;letter-spacing:.12em}
+.notes .n-orient{font-size:9px;letter-spacing:.18em;fill:var(--ink-2)}
+
+/* HUD chrome */
+.hud{position:absolute;font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);font-variant-numeric:tabular-nums}
+.reg{position:absolute;width:22px;height:22px;pointer-events:none}
+.reg::before,.reg::after{content:"";position:absolute;background:var(--ink)}
+.reg::before{left:50%;top:0;bottom:0;width:1px;transform:translateX(-.5px)}
+.reg::after{top:50%;left:0;right:0;height:1px;transform:translateY(-.5px)}
+.reg i{position:absolute;inset:5px;border:1px solid var(--ink);border-radius:50%}
+.reg.tl{left:calc(var(--edge) + env(safe-area-inset-left,0px) - 11px);top:calc(var(--edge) + env(safe-area-inset-top,0px) - 11px)}
+.reg.tr{right:calc(var(--edge) + env(safe-area-inset-right,0px) - 11px);top:calc(var(--edge) + env(safe-area-inset-top,0px) - 11px)}
+.reg.bl{left:calc(var(--edge) + env(safe-area-inset-left,0px) - 11px);bottom:calc(var(--edge) + env(safe-area-inset-bottom,0px) - 11px)}
+.reg.br{right:calc(var(--edge) + env(safe-area-inset-right,0px) - 11px);bottom:calc(var(--edge) + env(safe-area-inset-bottom,0px) - 11px)}
+
+#head{left:calc(var(--edge) + 22px + env(safe-area-inset-left,0px));top:calc(var(--edge) + 14px + env(safe-area-inset-top,0px));text-transform:none;max-width:min(46ch,60vw)}
+#head h1{font-family:var(--f-head);font-weight:600;font-size:clamp(24px,2.7vw,38px);line-height:1;white-space:nowrap;letter-spacing:.02em;margin:0;text-transform:uppercase;text-wrap:balance}
+#head h1 span{color:var(--amber)}
+#head h1 .ln{font-style:normal;white-space:nowrap;display:inline-block}
+#head p{margin:.7em 0 0;font-size:11px;letter-spacing:.04em;color:var(--ink-2);line-height:1.5}
+#head .kicker{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);margin:0 0 .6em}
+
+#lens{right:calc(var(--edge) + 22px + env(safe-area-inset-right,0px));top:calc(var(--edge) + 14px + env(safe-area-inset-top,0px));text-align:right;min-width:190px}
+#lens .lbl{color:var(--ink-2);letter-spacing:.16em}
+#lens .big{font-family:var(--f-head);font-weight:600;font-size:clamp(24px,2.6vw,36px);letter-spacing:.02em;line-height:1;margin:.15em 0 .35em;text-transform:none}
+#lens .big small{font-family:var(--f-mono);font-size:11px;font-weight:400;margin-left:.3em;color:var(--ink-2)}
+#lens .rows{display:grid;grid-template-columns:auto auto;gap:3px 14px;justify-content:end;border-top:1px solid var(--rule);padding-top:6px}
+#lens .rows span:nth-child(odd){color:var(--ink-2)}
+#lensbar{height:3px;background:var(--rule);margin-top:8px;position:relative}
+#lensbar b{position:absolute;left:0;top:0;bottom:0;background:var(--amber);width:0}
+
+#stages,#stages2{left:50%;transform:translateX(-50%);bottom:calc(var(--edge) + 40px + env(safe-area-inset-bottom,0px));display:flex;gap:4px 14px;white-space:nowrap;font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+#stages div,#stages2 div{display:flex;gap:6px;align-items:center;color:var(--ink-3)}
+#stages div::before,#stages2 div::before{content:"";width:10px;height:1px;background:currentColor}
+#stages div.on,#stages2 div.on{color:var(--amber)}
+#stages div.done,#stages2 div.done{color:var(--ink)}
+#stages div.later::after,#stages2 div.later::after{content:"next";font-size:8px;border:1px solid currentColor;padding:0 3px;letter-spacing:.1em}
+
+#mini{left:calc(var(--edge) + 22px + env(safe-area-inset-left,0px));bottom:calc(var(--edge) + 14px + env(safe-area-inset-bottom,0px));width:200px;border:1px solid var(--ink);background:var(--paper)}
+#mini header,#tblock header{display:flex;justify-content:space-between;padding:4px 7px;border-bottom:1px solid var(--ink)}
+#mini svg{display:block;width:100%;height:auto}
+#mini .foot{display:flex;justify-content:space-between;padding:3px 7px;border-top:1px solid var(--rule);color:var(--ink-2)}
+
+#tblock{right:calc(var(--edge) + 22px + env(safe-area-inset-right,0px));bottom:calc(var(--edge) + 14px + env(safe-area-inset-bottom,0px));width:250px;border:1px solid var(--ink);background:var(--paper)}
+#tblock .name{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-head);font-size:17px;font-weight:600;letter-spacing:.04em;padding:5px 7px 3px;border-bottom:1px solid var(--ink);text-transform:uppercase}
+#tblock .name small{font-family:var(--f-mono);font-size:9px;font-weight:400;color:var(--ink-2)}
+#tblock dl{display:grid;grid-template-columns:1fr 1fr;margin:0}
+#tblock dl div{padding:3px 7px;border-bottom:1px solid var(--rule)}
+#tblock dl div:nth-last-child(-n+2){border-bottom:0}
+#tblock dl div:nth-child(odd){border-right:1px solid var(--rule)}
+#tblock dt{color:var(--ink-2);font-size:8px;letter-spacing:.14em}
+#tblock dd{margin:2px 0 0;font-size:11px}
+#tblock dd.acc{color:var(--amber)}
+
+#cmd{left:50%;transform:translateX(-50%);bottom:calc(var(--edge) + 14px + env(safe-area-inset-bottom,0px));text-transform:none;font-size:11px;letter-spacing:.02em;white-space:nowrap;display:flex;gap:10px;align-items:center}
+#cmd .p{color:var(--amber)}
+#cmd .cur{width:7px;height:12px;background:var(--ink);animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+#room{left:calc(var(--edge) + 22px + env(safe-area-inset-left,0px));top:50%;transform:translateY(-40%);max-width:min(34ch,70vw);text-transform:none;opacity:0;pointer-events:none;
+  background:color-mix(in srgb, var(--paper) 86%, transparent);border-left:2px solid var(--amber);padding:10px 14px 12px}
+#room .rc{display:flex;gap:10px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber)}
+#room .rn{font-family:var(--f-head);font-weight:600;font-size:clamp(26px,3vw,40px);line-height:1.02;text-transform:uppercase;letter-spacing:.02em;margin:.2em 0 .25em;text-wrap:balance}
+#room .rm{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11px;letter-spacing:.06em;color:var(--ink)}
+#room .rt{margin:.7em 0 0;font-size:11px;line-height:1.5;color:var(--ink-2)}
+#hint{left:50%;transform:translateX(-50%);bottom:calc(var(--edge) + 64px + env(safe-area-inset-bottom,0px));color:var(--ink-2);letter-spacing:.2em;transition:opacity .4s}
+
+/* return: call to action on the flat sheet */
+#cta{position:absolute;left:50%;top:calc(var(--edge) + 34px + env(safe-area-inset-top,0px));transform:translate(-50%,14px);opacity:0;pointer-events:none;text-align:center;display:grid;gap:8px;justify-items:center}
+#ctaBtn{font-family:var(--f-head);font-weight:600;font-size:clamp(20px,2.2vw,28px);letter-spacing:.06em;text-transform:uppercase;color:var(--paper);background:var(--amber);border:0;padding:12px 22px 11px;display:flex;gap:16px;align-items:center;cursor:pointer;box-shadow:4px 4px 0 var(--ink)}
+#ctaBtn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+#ctaBtn:focus-visible,#brief button:focus-visible,#brief input:focus-visible,#brief textarea:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+#ctaBtn i{font-style:normal}
+#walks{position:absolute;left:50%;transform:translate(-50%,14px);bottom:calc(var(--edge) + 34px + env(safe-area-inset-bottom,0px));opacity:0;pointer-events:none;display:grid;gap:8px;justify-items:center;text-align:center}
+#walks .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+#walks p{margin:0;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+#walks p a{color:var(--amber);text-decoration:none;border-bottom:1px solid currentColor}
+.walkBtn{display:grid;gap:2px;text-align:left;background:var(--paper);color:var(--ink);border:1px solid var(--ink);padding:8px 14px 7px;cursor:pointer;font-family:var(--f-mono);box-shadow:3px 3px 0 var(--ink-3)}
+.walkBtn b{font-family:var(--f-head);font-weight:600;font-size:15px;letter-spacing:.06em;text-transform:uppercase}
+.walkBtn small{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.walkBtn:hover{border-color:var(--amber);box-shadow:3px 3px 0 var(--amber)}
+.walkBtn.build{text-decoration:none;border-color:var(--amber)}
+.walkBtn.build b{color:var(--amber)}
+.walkBtn:focus-visible,#replay button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+#replay{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--edge) + 14px + env(safe-area-inset-top,0px));z-index:12;display:flex;gap:10px;align-items:center;background:var(--paper);border:1px solid var(--ink);padding:5px 6px 5px 12px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+#replay span{color:var(--amber)}
+#replay button{font:inherit;letter-spacing:.12em;text-transform:uppercase;background:none;border:1px solid var(--ink-3);color:var(--ink);padding:3px 8px;cursor:pointer}
+#replay button:hover{border-color:var(--ink)}
+#flash{position:fixed;inset:0;background:var(--paper);opacity:0;pointer-events:none;z-index:11;transition:opacity .35s ease}
+#flash.on{opacity:1}
+#cta p{margin:0;pointer-events:auto;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+#brief{position:fixed;inset:0;display:grid;place-items:center;background:rgba(242,239,231,.72);z-index:25;padding:16px}
+#brief form{width:min(440px,100%);background:var(--paper);border:1px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:0 16px 16px;display:grid;gap:6px;font-size:11px}
+#brief header{display:flex;justify-content:space-between;align-items:center;margin:0 -16px 8px;padding:8px 12px 8px 16px;border-bottom:1px solid var(--ink);font-family:var(--f-head);font-size:16px;letter-spacing:.06em;text-transform:uppercase}
+#brief header button{background:none;border:0;font-size:22px;line-height:1;cursor:pointer;color:var(--ink)}
+#brief label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin-top:4px}
+#brief input,#brief textarea{font:inherit;font-size:13px;color:var(--ink);background:#fbf9f4;border:1px solid var(--ink-3);padding:7px 8px;border-radius:0;width:100%;box-sizing:border-box}
+#brief .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#brief .row div{display:grid;gap:6px;min-width:0}
+#brief .mail{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px;padding:7px 8px;border:1px solid var(--ink-3)}
+#brief .mail span{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+#brief .mail b{font-weight:500;font-size:13px;user-select:all;flex:1;min-width:0;overflow-wrap:anywhere}
+#mailCopy{font:inherit;font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:none;border:1px solid var(--ink);padding:3px 8px;cursor:pointer;color:var(--ink)}
+#brief .msg a{color:var(--amber)}
+#brief .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+#briefSite{display:grid;place-items:center;font-family:var(--f-head);font-weight:600;font-size:15px;letter-spacing:.08em;text-transform:uppercase;background:var(--amber);color:var(--paper);text-decoration:none;padding:10px}
+#briefGo{font-family:var(--f-head);font-weight:600;font-size:15px;letter-spacing:.08em;text-transform:uppercase;background:var(--ink);color:var(--paper);border:0;padding:10px;cursor:pointer}
+#brief .msg{margin:2px 0 0;color:var(--ink-2);line-height:1.5}
+#brief pre{white-space:pre-wrap;background:#fbf9f4;border:1px dashed var(--ink-3);padding:8px;margin:4px 0 0;font:inherit;user-select:all}
+
+#loader[hidden],#brief[hidden],#briefOut[hidden]{display:none!important}
+/* loader */
+#loader{position:fixed;inset:0;display:grid;place-items:center;background:var(--paper);z-index:20}
+#loader.out{opacity:0;pointer-events:none}
+#loader .box{display:grid;gap:12px;justify-items:center;font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+#loader svg{width:min(340px,80vw);height:auto;overflow:visible}
+#loader .ttl{font-family:var(--f-head);font-size:15px;font-weight:600;letter-spacing:.22em}
+#loader .pct{color:var(--ink-2);font-variant-numeric:tabular-nums}
+#loader .pct b{color:var(--amber);font-weight:500}
+#nogl{position:fixed;inset:0;display:none;place-items:center;padding:24px;text-align:center;font-size:12px;z-index:30;background:var(--paper)}
+
+@media (max-width:820px){
+  #stages{display:none}
+  #mini{width:160px}
+  #tblock{width:180px}
+  #tblock dl div:nth-child(n+3){display:none}
+  #tblock .name{font-size:15px}
+  #lens{min-width:0}
+  #lens .rows{display:none}
+  #cmd{display:none}
+}
+@media (max-width:520px){
+  #mini{display:none}
+  #lens .big{font-size:22px}
+}
+@media (max-width:1180px) and (min-width:601px){ #walks{bottom:calc(var(--edge) + 16px + env(safe-area-inset-bottom,0px))} #walks small, #walks p{display:none} .walkBtn{padding:7px 12px} .walkBtn b{font-size:13px} }
+@media (max-width:820px){ #stages2{display:none} }
+@media (max-width:600px){
+  #head .kicker{display:none}
+  #head h1{font-size:19px}
+  #lens .lbl{display:none}
+  #lens .big{font-size:19px;margin:0}
+  #lensbar{margin-top:4px}
+  .notes .n-roomsub, .notes .n-dim, .notes .n-small, .notes .n-bubt, .notes .n-orient, .notes .n-title, .notes .n-axt{display:none}
+  .notes .n-bub{r:3px}
+  .notes .n-room{font-size:7px;letter-spacing:.06em}
+  .notes .n-sunt{font-size:7px}
+  .notes .n-sunsym{r:3px}
+  #cta{top:auto;bottom:calc(var(--edge) + 290px + env(safe-area-inset-bottom,0px))}
+  #walks{bottom:calc(var(--edge) + 150px + env(safe-area-inset-bottom,0px));width:calc(100vw - 40px)}
+  #walks .row{flex-wrap:wrap}
+  .walkBtn{padding:7px 9px 6px}
+  #ctaBtn{font-size:17px;padding:10px 16px 9px}
+  .walkBtn b{font-size:13px}
+  #replay{top:auto;bottom:calc(var(--edge) + 104px + env(safe-area-inset-bottom,0px))}
+  #room{top:auto;bottom:calc(var(--edge) + 140px + env(safe-area-inset-bottom,0px));transform:none!important;max-width:calc(100vw - 80px)}
+  #room .rn{font-size:22px}
+  #room .rt{display:none}
+  #hint{bottom:calc(var(--edge) + 200px + env(safe-area-inset-bottom,0px));white-space:nowrap}
+}
+@media (prefers-reduced-motion:reduce){#cmd .cur{animation:none}}
+</style>
+
+<div id="stage" aria-label="Section A-A of A House Built by Yousef">
+  <canvas id="gl"></canvas>
+  <svg id="notes" class="notes" aria-hidden="true"></svg>
+  <svg id="pnotes" class="notes" aria-hidden="true" style="opacity:0"></svg>
+
+  <div class="reg tl"><i></i></div><div class="reg tr"><i></i></div>
+  <div class="reg bl"><i></i></div><div class="reg br"><i></i></div>
+
+  <div class="hud" id="head">
+    <p class="kicker" id="kick">Riyadh · 24.7°N · plot 36 × 16 m</p>
+    <h1><em class="ln">A House</em> <em class="ln"><span>/</span> Built by Yousef</em></h1>
+  </div>
+  <div class="hud stagebar" id="stages2">
+    <div data-s="0">01 Plan</div><div data-s="1">02 Rise</div><div data-s="2">03 Descend</div><div data-s="3">04 Walk in</div><div data-s="4">05 Up &amp; out</div>
+  </div>
+  <div class="hud stagebar" id="stages" hidden>
+    <div data-s="0">06 Section</div><div data-s="1">07 Lens</div>
+    <div data-s="2">08 Sweep</div><div data-s="3">09 Walk</div><div data-s="4">10 Return</div>
+  </div>
+
+  <div class="hud" id="lens">
+    <div class="lbl">Lens · 35 mm eq.</div>
+    <div class="big"><span id="lf">11,459</span><small>mm</small></div>
+    <div class="rows">
+      <span>FOV</span><span id="lfov">0.120°</span>
+      <span id="ldl">Dist to cut</span><span id="ld">13,428 m</span>
+      <span>Scale @ cut</span><span id="ls">1:88</span>
+    </div>
+    <div id="lensbar"><b></b></div>
+  </div>
+
+
+  <div class="hud" id="mini">
+    <header><span id="mtitle">Live plan</span><span id="mstate">⊗ into sheet</span></header>
+    <svg id="msvg" viewBox="0 0 236 104" style="display:none"></svg>
+    <svg id="msvg2" viewBox="0 0 236 104"></svg>
+    <div class="foot"><span id="mx">x 20.0</span><span id="my">y 3.6</span><span id="mz">z +13,428</span></div>
+  </div>
+
+  <div class="hud" id="tblock">
+    <div class="name"><span>A House · by Yousef</span><small>30.10.2026</small></div>
+    <dl>
+      <div><dt>Drawing</dt><dd id="tdraw">Ground floor plan</dd></div>
+      <div><dt>Sheet</dt><dd id="tsheet">A-101 · Rev P1</dd></div>
+      <div><dt>Scale @ cut</dt><dd id="tscale" class="acc">1:88</dd></div>
+      <div><dt>Projection</dt><dd id="tproj">Near-parallel</dd></div>
+    </dl>
+  </div>
+
+  <div class="hud" id="room" aria-live="polite">
+    <div class="rc"><span id="rcode">02</span><span>Room</span></div>
+    <div class="rn" id="rname">Living</div>
+    <div class="rm" id="rmeta"></div>
+    <p class="rt" id="rnote"></p>
+  </div>
+  <div class="hud" id="hint">Scroll to raise the walls ↓</div>
+  <div id="cta" inert>
+    <button id="ctaBtn" type="button"><span>Start a project</span><i aria-hidden="true">→</i></button>
+  </div>
+  <div id="walks" role="group" aria-label="Watch a walk again" inert>
+    <div class="row">
+      <button type="button" class="walkBtn" data-walk="plan"><b>Walk the plan</b><small>Front door → master bedroom</small></button>
+      <button type="button" class="walkBtn" data-walk="section"><b>Walk the section</b><small>In through cut A–A</small></button>
+      <a class="walkBtn build" id="buildLink" href="build.html"><b>Watch it being built</b><small>26-week programme →</small></a>
+    </div>
+    <p>Houses and courtyards for Riyadh · <a href="https://archpassion.com" target="_blank" rel="noopener">archpassion.com</a></p>
+  </div>
+  <div id="replay" hidden><span id="replayT">Plan walk</span><button type="button" id="replayStop">Pause</button><button type="button" id="replayEnd">Back to the choices</button></div>
+  <div id="flash" aria-hidden="true"></div>
+  <div id="brief" hidden role="dialog" aria-labelledby="briefT">
+    <form id="briefF">
+      <header><b id="briefT">Project brief</b><button type="button" id="briefX" aria-label="Close">×</button></header>
+      <label for="bName">Name</label><input id="bName" autocomplete="name" required>
+      <div class="row">
+        <div><label for="bSite">Plot location</label><input id="bSite" placeholder="Riyadh, district"></div>
+        <div><label for="bSize">Plot size</label><input id="bSize" placeholder="22 × 40 m"></div>
+      </div>
+      <label for="bText">What should the house do?</label><textarea id="bText" rows="4" placeholder="Rooms, courtyards, how you live in summer"></textarea>
+      <div class="acts">
+        <button type="submit" id="briefGo">Copy brief</button>
+        <a id="briefSite" href="https://archpassion.com" target="_blank" rel="noopener">Open archpassion.com ↗</a>
+      </div>
+      <div class="mail"><span>Studio email</span><b id="mailAddr">yousefjjh@gmail.com</b><button type="button" id="mailCopy">Copy</button></div>
+      <p id="briefMsg" class="msg"><span id="briefTxt">Copy the brief and email it to the studio, or send it through archpassion.com.</span> <a id="mailGo" href="mailto:yousefjjh@gmail.com?subject=Project%20brief">Open in your mail app</a></p>
+      <pre id="briefOut" hidden></pre>
+    </form>
+  </div>
+  <div class="hud" id="cmd"><span class="p">Command:</span><span id="cmdt">_LOAD KEYPLAN</span><span class="cur"></span></div>
+</div>
+
+<div id="ch2" aria-hidden="true"></div>
+<div id="ch1" aria-hidden="true"></div>
+
+<div id="loader">
+  <div class="box">
+    <div class="ttl">A HOUSE BUILT BY YOUSEF</div>
+    <svg id="kp" viewBox="-30 -20 300 176"></svg>
+    <div>Key plan · cut A–A</div>
+    <div class="pct">Loading model <b id="lp">0%</b></div>
+  </div>
+</div>
+<div id="nogl">This drawing needs WebGL 2. Open the page in a current desktop or mobile browser.</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js';
+THREE.ColorManagement.enabled = false;
+
+/* ================================================================
+   0. CONSTANTS
+   x runs along the section (street wall x=0 → rear wall x=40, south → north),
+   y is up (natural ground 0), z is depth; the cut plane A-A is z = 0 and the
+   model only exists behind it (z ≤ 0).
+================================================================ */
+const COL = { paper:0xf2efe7, ink:0x1d1c19, amber:0xe85d04 };
+const lin = c => [((c>>16)&255)/255,((c>>8)&255)/255,(c&255)/255].map(v=>Math.pow(v,2.2));
+const CLS = { STRUCT:1, EARTH:2, GLASS:3, JOIN:4, VEG:5, PAVE:6 };
+const TIMELINE_END = 1.0;
+const STAGE = { lens0:0.12, lens1:0.30, turn0:0.30, turn1:0.38, sweep0:0.38, sweep1:0.55, walk0:0.55, walk1:0.85, out1:0.885, scan1:0.935, end:0.985 };
+/* Sun for the lit render: the true 21 June 17:00 profile angle in the section plane
+   (55.5° from the north), with the westerly azimuth eased so the beams read in this view. */
+const SUN_DIR = new THREE.Vector3(Math.cos(55.54*Math.PI/180), Math.sin(55.54*Math.PI/180), -0.30).normalize();
+const CZ = 1.45;                     // section A–A: the client's D–D line, 12.3 m south of the north boundary
+const SCAN0 = -1, SCAN1 = 42;       // the scan crosses from the street side to the plot limit
+const FOV0 = 0.12, FOV1 = 60;       // degrees
+const TARGET = new THREE.Vector3(20.9, 2.0, CZ);
+const PIVOT  = new THREE.Vector3(20.9, 1.8, CZ-5);
+const MANUAL = !!window.__manual;   // recording hook
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const $ = s => document.querySelector(s);
+const clamp = (v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+const lerp = (a,b,t)=>a+(b-a)*t;
+const ease = t => t*t*t*(t*(t*6-15)+10);                      // smootherstep
+const range = (v,a,b)=>clamp((v-a)/(b-a));
+const fmt = (n,d=0)=>n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+
+/* ================================================================
+   1. LOADER — key plan with the cut line drawing across
+================================================================ */
+const kp = $('#kp'); const SVGNS='http://www.w3.org/2000/svg';
+function el(tag, attrs, parent){ const e=document.createElementNS(SVGNS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e; }
+(function buildKeyPlan(){
+  const s=6; // px per m, drawing metres: x → right, z → down
+  const Z = z => z*s+4, X = x => (x+8)*s;
+  el('rect',{x:X(-6),y:Z(0),width:36.2*s,height:16.2*s,fill:'none',stroke:'#1d1c19','stroke-width':1.4},kp);
+  [[0,4.45,1.65,5.6],[4.45,11.3,5.6,6.8],[6.7,11.3,6.8,14.95],[1,6.7,10.3,14.95],[9.6,24.6,0,5.1],[19.6,24.5,5.1,6.9],[11.3,14,6.9,15],[28.2,30,8.1,14.7]]
+    .forEach(([a,b,c,d])=>el('rect',{x:X(a),y:Z(c),width:(b-a)*s,height:(d-c)*s,fill:'#1d1c19','fill-opacity':.08,stroke:'#1d1c19','stroke-width':1},kp));
+  [[5.7,10.1,0,5.6],[19.8,28,9.9,13],[-5.6,.9,9.9,15.6]].forEach(([a,b,c,d])=>el('rect',{x:X(a),y:Z(c),width:(b-a)*s,height:(d-c)*s,fill:'none',stroke:'#1d1c19','stroke-dasharray':'3 2','stroke-width':.8},kp));
+  [[-4.3,2.6,2.3],[.6,8.3,2.1],[16.4,6,1.8],[22,15.4,2]].forEach(([x,z,r])=>el('circle',{cx:X(x),cy:Z(z),r:r*s,fill:'none',stroke:'#1d1c19','stroke-width':.7},kp));
+  el('text',{x:X(12),y:Z(16.2)+16,'text-anchor':'middle','font-size':8,'font-family':'IBM Plex Mono, monospace',fill:'#1d1c19','letter-spacing':2},kp).textContent='GROUND FLOOR · CUT +1.65';
+  const cut = el('line',{x1:X(-8),y1:Z(12.3),x2:X(32),y2:Z(12.3),stroke:'#e85d04','stroke-width':1.6,'stroke-dasharray':'16 4 3 4'},kp);
+  cut.id='kpcut';
+  const arrow=(x,lbl)=>{ const g=el('g',{class:'kparrow',opacity:0},kp);
+    el('path',{d:`M${X(x)} ${Z(12.3)} l0 -12 l-5 0 l5 -8 l5 8 l-5 0`,fill:'#e85d04',stroke:'none'},g);
+    el('text',{x:X(x),y:Z(12.3)+14,'text-anchor':'middle','font-size':10,'font-weight':600,'font-family':'Chakra Petch, sans-serif',fill:'#e85d04'},g).textContent=lbl; return g; };
+  arrow(-8,'A'); arrow(32,'A′');
+})();
+
+/* ================================================================
+   2. RENDERER
+================================================================ */
+const canvas = $('#gl');
+let renderer;
+try{ renderer = new THREE.WebGLRenderer({canvas, antialias:false, alpha:false, powerPreference:'high-performance'}); }
+catch(e){ $('#nogl').style.display='grid'; throw e; }
+const gl2 = renderer.capabilities.isWebGL2;
+if(!gl2){ $('#nogl').style.display='grid'; }
+const floatOK = renderer.extensions.has('EXT_color_buffer_float');
+renderer.setClearColor(0x000000, 0);
+renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+renderer.autoClear = true;
+
+/* ================================================================
+   3. THE MODEL — built as one merged geometry with a per-vertex class
+================================================================ */
+const P=[], N=[], C=[], CO=[], BM=[];
+const NOBOX=[-1e4,-1e4,-1e4];
+function addGeom(g, cls, col, bm){
+  if(g.index) g = g.toNonIndexed();
+  const p=g.attributes.position.array, n=g.attributes.normal.array;
+  for(let i=0;i<p.length;i+=3){ P.push(p[i],p[i+1],p[i+2]); N.push(n[i],n[i+1],n[i+2]); C.push(cls); CO.push(col||null); BM.push(...(bm||NOBOX)); }
+}
+/* One full house. Every box keeps its min corner; the shaders clamp box vertices to
+   the active cut planes (section: z ≤ uCutZ, plan: y ≤ uCutY), so a box cut by a
+   plane is still a closed solid whose cap lies exactly on the plane. Boxes wholly
+   beyond a plane are discarded. Structure is nudged 3 mm past the section plane so
+   it wins over the earth it sits in. */
+function box(x0,x1,y0,y1,z0,z1,cls,col){
+  const g=new THREE.BoxGeometry(x1-x0,y1-y0,z1-z0);
+  g.translate((x0+x1)/2,(y0+y1)/2,(z0+z1)/2); addGeom(g,cls,col,[x0,y0,z0]);
+}
+/* walls with rectangular openings: wallX runs along z (openings [za,zb,ya,yb]), wallZ along x ([xa,xb,ya,yb]) */
+function wallSplit(a0,a1,y0,y1,open,emit){
+  const cuts=[a0,a1,...open.flatMap(o=>[o[0],o[1]])].filter(v=>v>=a0&&v<=a1).sort((a,b)=>a-b);
+  for(let i=0;i<cuts.length-1;i++){ const a=cuts[i], b=cuts[i+1]; if(b-a<1e-4) continue; const m=(a+b)/2;
+    let segs=[[y0,y1]];
+    for(const o of open) if(m>o[0]&&m<o[1]) segs=segs.flatMap(([s,e])=>{ const r=[]; if(o[2]>s) r.push([s,Math.min(e,o[2])]); if(o[3]<e) r.push([Math.max(s,o[3]),e]); return r; });
+    for(const [s,e] of segs) if(e-s>1e-4) emit(a,b,s,e);
+  }
+}
+function wallX(x0,x1,z0,z1,y0,y1,open=[],cls=CLS.STRUCT){ wallSplit(z0,z1,y0,y1,open,(a,b,s,e)=>box(x0,x1,s,e,a,b,cls)); }
+function wallZ(z0,z1,x0,x1,y0,y1,open=[],cls=CLS.STRUCT){ wallSplit(x0,x1,y0,y1,open,(a,b,s,e)=>box(a,b,s,e,z0,z1,cls)); }
+function blob(x,y,z,sx,sy,sz,cls=CLS.VEG,seg=14){
+  const g=new THREE.SphereGeometry(1,seg,Math.round(seg*.7)); g.scale(sx,sy,sz); g.translate(x,y,z); addGeom(g,cls);
+}
+function cyl(x,y0,y1,z,r0,r1,cls=CLS.VEG,seg=10){
+  const g=new THREE.CylinderGeometry(r1,r0,y1-y0,seg,1); g.translate(x,(y0+y1)/2,z); addGeom(g,cls);
+}
+const S=CLS.STRUCT, E=CLS.EARTH, G=CLS.GLASS, J=CLS.JOIN, V=CLS.VEG, PV=CLS.PAVE;
+const FFL=0.45, FF=4.45, D=-10;  // ground floor, first floor, west facade line
+const HW=-10, HE=4;               // house runs z −10 (west) … +4 (east); section A-A cuts at z = 0
+const AXZ=-0.9;                    // the enfilade axis: every ground-floor door is centred on it
+
+/* (the earlier test house was removed; the model below is the client's house) */
+/* ================================================================
+   FURNISHING + PLANTING — rounded upholstery, timber on bronze legs,
+   books, lamps, pots; trees are displaced (noise) volumes, the palm has leaflets
+================================================================ */
+const FB=7, MT=8, CE=9;
+let seed = 11; const rnd = ()=>{ seed = (seed*16807) % 2147483647; return (seed-1)/2147483646; };
+const PAL = { linen:lin(0xd9d0c1), oat:lin(0xc4b59c), sand:lin(0xb8a78d), cream:lin(0xe8e0d0), clay:lin(0xa9583b), olive:lin(0x777a50),
+  slate:lin(0x4d5660), bronze:lin(0x3b342d), stone:lin(0xd6cfc2), white:lin(0xece8df), terra:lin(0xb06a4b), oak:lin(0xc4a47c), walnut:lin(0x7a5638) };
+const BOOKS = [0xa4573a,0x5f6b5a,0xc9a46a,0x2f3a44,0xd9cbb0,0x8a3b2e,0x6b7f8c,0xe2d8c3,0x4a4038,0xb98b5a].map(lin);
+
+function rbox(x0,x1,y0,y1,z0,z1,r,cls,col,seg=3){
+  const w=x1-x0,h=y1-y0,d=z1-z0; r=Math.max(.002,Math.min(r,w/2-1e-4,h/2-1e-4,d/2-1e-4));
+  const n=2*seg+1, g=new THREE.BoxGeometry(1,1,1,n,n,n), pos=g.attributes.position, nor=g.attributes.normal, H=[w/2,h/2,d/2];
+  const map=(c,hf)=>{ const k=Math.round((c+.5)*n); return k<=seg ? -hf + r*(k/seg) : hf - r*((n-k)/seg); };
+  for(let i=0;i<pos.count;i++){
+    const p=[map(pos.getX(i),H[0]),map(pos.getY(i),H[1]),map(pos.getZ(i),H[2])];
+    const q=p.map((v,a)=>Math.max(-H[a]+r,Math.min(H[a]-r,v)));
+    let dx=p[0]-q[0],dy=p[1]-q[1],dz=p[2]-q[2]; const L=Math.hypot(dx,dy,dz);
+    if(L>1e-7){ dx/=L;dy/=L;dz/=L; pos.setXYZ(i,q[0]+dx*r,q[1]+dy*r,q[2]+dz*r); nor.setXYZ(i,dx,dy,dz); } else pos.setXYZ(i,p[0],p[1],p[2]);
+  }
+  g.translate((x0+x1)/2,(y0+y1)/2,(z0+z1)/2); addGeom(g,cls,col);
+}
+function rod(x,y0,y1,z,r,cls=MT,col){ const g=new THREE.CylinderGeometry(r,r,y1-y0,8,1); g.translate(x,(y0+y1)/2,z); addGeom(g,cls,col); }
+function cone(x,y0,y1,z,rb,rt,cls,col,seg=18){ const g=new THREE.CylinderGeometry(rt,rb,y1-y0,seg,1); g.translate(x,(y0+y1)/2,z); addGeom(g,cls,col); }
+function legs(x0,x1,z0,z1,y0,y1,inset=.05,r=.018,col=PAL.bronze){ for(const x of [x0+inset,x1-inset]) for(const z of [z0+inset,z1-inset]) rod(x,y0,y1,z,r,MT,col); }
+function sofa(x0,x1,zb,zf,col=PAL.sand,cush=PAL.linen){            // back along zb
+  const y=FFL, dirZ = Math.sign(zf-zb), zb2 = zb+dirZ*.24, za=Math.min(zb,zf), zz=Math.max(zb,zf);
+  legs(x0,x1,za,zz,y,y+.1,.08);
+  rbox(x0,x1,y+.1,y+.42,za,zz,.06,FB,col);
+  rbox(x0,x0+.2,y+.42,y+.72,za,zz,.08,FB,col); rbox(x1-.2,x1,y+.42,y+.72,za,zz,.08,FB,col);
+  rbox(x0+.2,x1-.2,y+.42,y+.86,Math.min(zb,zb2),Math.max(zb,zb2),.08,FB,col);
+  const nC=Math.max(2,Math.round((x1-x0-.4)/.95)), cw=(x1-x0-.4)/nC;
+  for(let i=0;i<nC;i++){ const a=x0+.2+i*cw+.01, b=a+cw-.02;
+    rbox(a,b,y+.42,y+.56,Math.min(zb2,zf),Math.max(zb2,zf)-(dirZ>0?0:0),.06,FB,cush);
+    const zc=zb2+dirZ*.02, zc2=zb2+dirZ*.2; rbox(a+.03,b-.03,y+.54,y+.92,Math.min(zc,zc2),Math.max(zc,zc2),.08,FB,cush); }
+  rbox(x0+.32,x0+.72,y+.58,y+.92,Math.min(zb2,zb2+dirZ*.16)+(dirZ>0?.05:-.05),Math.max(zb2,zb2+dirZ*.16)+(dirZ>0?.05:-.05),.07,FB,PAL.clay);
+}
+function chair(x,z,face,seat=PAL.oat){    // face: +1 → sitter looks +z
+  const y=FFL; legs(x-.22,x+.22,z-.22,z+.22,y,y+.44,.03,.016,PAL.walnut);
+  rbox(x-.23,x+.23,y+.44,y+.5,z-.23,z+.23,.03,FB,seat);
+  const zb = z - face*.21; rbox(x-.22,x+.22,y+.5,y+.9,Math.min(zb,zb-face*.04),Math.max(zb,zb-face*.04),.02,J,PAL.walnut);
+}
+function bookRow(a0,a1,y,c0,c1,alongX){             // books standing on a shelf, spines toward the room
+  let a=a0+.04;
+  while(a < a1-.08){
+    if(rnd()<.08){ a += .12+rnd()*.25; continue; }
+    const t=.025+rnd()*.045, h=.19+rnd()*.13, d=(c1-c0)*(.75+rnd()*.2), col=BOOKS[Math.floor(rnd()*BOOKS.length)];
+    if(alongX) box(a,a+t,y,y+h,c0+((c1-c0)-d),c1,J); else box(c0,c0+d,y,y+h,a,a+t,J);
+    const last = C.length; for(let i=last-36;i<last;i++) CO[i]=col;
+    a += t+.004;
+  }
+}
+// noise for organic volumes
+function h3(x,y,z){ const h=Math.sin(x*127.1+y*311.7+z*74.7)*43758.5453; return h-Math.floor(h); }
+function vn3(x,y,z){ const xi=Math.floor(x),yi=Math.floor(y),zi=Math.floor(z), s=t=>t*t*(3-2*t), u=s(x-xi),v=s(y-yi),w=s(z-zi), L=(a,b,t)=>a+(b-a)*t;
+  return L(L(L(h3(xi,yi,zi),h3(xi+1,yi,zi),u),L(h3(xi,yi+1,zi),h3(xi+1,yi+1,zi),u),v),L(L(h3(xi,yi,zi+1),h3(xi+1,yi,zi+1),u),L(h3(xi,yi+1,zi+1),h3(xi+1,yi+1,zi+1),u),v),w); }
+function dblob(x,y,z,sx,sy,sz,amp=.28,seg=12,cls=V,col){
+  const g=new THREE.SphereGeometry(1,seg,Math.round(seg*.75)), p=g.attributes.position, o=rnd()*40;
+  for(let i=0;i<p.count;i++){ const X=p.getX(i),Y=p.getY(i),Z=p.getZ(i); const nz=vn3(X*1.9+o,Y*1.9,Z*1.9)*.7+vn3(X*4.6+o,Y*4.6,Z*4.6)*.3; const k=1+amp*(nz-.5)*2; p.setXYZ(i,X*k,Y*k,Z*k); }
+  g.computeVertexNormals(); g.scale(sx,sy,sz); g.translate(x,y,z); addGeom(g,cls,col);
+}
+function limb(a,b,r0,r1,cls=V,col=lin(0x6e5a44),seg=8){
+  const A=new THREE.Vector3(...a), d=new THREE.Vector3(...b).sub(A), L=d.length();
+  const g=new THREE.CylinderGeometry(r1,r0,L,seg,1); g.translate(0,L/2,0);
+  g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0), d.normalize())); g.translate(A.x,A.y,A.z); addGeom(g,cls,col);
+}
+function canopy(cx,cy,cz,rx,ry,rz,n,size,col,zMax=-.4){   // zMax keeps section-house trees behind the cut
+  for(let i=0;i<n;i++){
+    const a=rnd()*Math.PI*2, r=Math.sqrt(rnd()), y=cy + (rnd()-.35)*ry;
+    let x=cx+Math.cos(a)*r*rx, z=Math.min(cz+Math.sin(a)*r*rz, zMax-size);
+    const sz=size*(.7+rnd()*.5); dblob(x,y,z,sz*1.15,sz*.62,sz*1.05,.34,18,V,col);
+  }
+}
+function shrub(x,y,z,s,n=4,col){ for(let i=0;i<n;i++) dblob(x+(rnd()-.5)*s*1.3,y+s*.35+rnd()*s*.3,z+(rnd()-.5)*s*1.3,s*(.45+rnd()*.3),s*(.38+rnd()*.25),s*(.45+rnd()*.3),.3,10,V,col); }
+function pot(x,z,y,r,h,col=PAL.terra){ cone(x,y,y+h,z,r*.78,r,CE,col,20); }
+
+const LEAF = lin(0x6f7a4a), LEAF2 = lin(0x8a8f5a), LEAF3 = lin(0x5d6a42), BARK = lin(0x7b6650);
+
+const geo = new THREE.BufferGeometry();
+geo.setAttribute('position', new THREE.Float32BufferAttribute(P,3));
+geo.setAttribute('normal',   new THREE.Float32BufferAttribute(N,3));
+geo.setAttribute('cls',      new THREE.Float32BufferAttribute(C,1));
+geo.setAttribute('bmin',     new THREE.Float32BufferAttribute(BM,3));
+geo.computeBoundingSphere();
+const scene = new THREE.Scene();
+const house = new THREE.Mesh(geo); house.frustumCulled=false; scene.add(house);
+
+/* ---- lit model: same triangles, glass split out, colour per class ---- */
+const ALBEDO = {1:[.90,.86,.78], 2:[.86,.75,.60], 3:[.62,.75,.78], 4:[.78,.68,.55], 5:[.50,.56,.36], 6:[.84,.79,.70], 7:[.85,.81,.74], 8:[.23,.21,.19], 9:[.90,.88,.83]};
+for(const k in ALBEDO) ALBEDO[k] = ALBEDO[k].map(v=>Math.pow(v,2.2));
+function subGeo(keep){
+  const p=[],n=[],c=[],k=[],bm=[];
+  for(let i=0;i<C.length;i+=3){ if(!keep(C[i])) continue;
+    for(let j=i;j<i+3;j++){ p.push(P[j*3],P[j*3+1],P[j*3+2]); n.push(N[j*3],N[j*3+1],N[j*3+2]); c.push(...(CO[j]||ALBEDO[C[j]])); k.push(C[j]); bm.push(BM[j*3],BM[j*3+1],BM[j*3+2]); } }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(p,3)); g.setAttribute('normal',new THREE.Float32BufferAttribute(n,3));
+  g.setAttribute('color',new THREE.Float32BufferAttribute(c,3)); g.setAttribute('cls',new THREE.Float32BufferAttribute(k,1)); g.setAttribute('bmin',new THREE.Float32BufferAttribute(bm,3));
+  return g;
+}
+const CUT = { uCutZ:{value:0}, uCutY:{value:100} };
+const CLAMP_V = `
+  if(bmin.x > -9000.0){
+    float nz = ((cls>0.5&&cls<1.5)||(cls>5.5&&cls<6.5)) ? 0.003 : ((cls>2.5&&cls<3.5) ? 0.002 : 0.0);
+    transformed.z = min(transformed.z, uCutZ + nz); transformed.y = min(transformed.y, uCutY);
+  }`;
+const CLIP_F = `
+  if(vBm.x > -9000.0){ if(vBm.z >= uCutZ - 1e-5 || vBm.y >= uCutY - 1e-5) discard; }
+  else if(vCw.z > uCutZ || vCw.y > uCutY) discard;`;
+function clipInject(sh){
+  sh.uniforms.uCutZ = CUT.uCutZ; sh.uniforms.uCutY = CUT.uCutY;
+  sh.vertexShader = sh.vertexShader
+    .replace('#include <common>', '#include <common>\nattribute vec3 bmin; attribute float cls; uniform float uCutZ; uniform float uCutY; varying vec3 vBm; varying vec3 vCw;')
+    .replace('#include <begin_vertex>', '#include <begin_vertex>' + CLAMP_V + '\nvBm = bmin; vCw = (modelMatrix*vec4(transformed,1.0)).xyz;');
+  sh.fragmentShader = sh.fragmentShader
+    .replace('#include <common>', '#include <common>\nuniform float uCutZ; uniform float uCutY; varying vec3 vBm; varying vec3 vCw;')
+    .replace('void main() {', 'void main() {' + CLIP_F);
+}
+const litScene = new THREE.Scene();
+const litMat = new THREE.MeshStandardMaterial({vertexColors:true, roughness:.86, metalness:0});
+/* every surface texture is procedural: limestone coursing, stone floor joints,
+   sand strata in the cut earth, timber grain, leaf mottling */
+litMat.onBeforeCompile = sh=>{
+  clipInject(sh);
+  sh.vertexShader = sh.vertexShader
+    .replace('#include <common>', '#include <common>\nvarying float vCls; varying vec3 vWPos; varying vec3 vWN;')
+    .replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvCls = cls; vWPos = (modelMatrix*vec4(transformed,1.0)).xyz; vWN = normalize(mat3(modelMatrix)*objectNormal);');
+  sh.fragmentShader = sh.fragmentShader
+    .replace('#include <common>', `#include <common>
+varying float vCls; varying vec3 vWPos; varying vec3 vWN;
+float h31(vec3 p){ p=fract(p*.3183099+.1); p*=17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
+float vn(vec3 x){ vec3 i=floor(x), f=fract(x); f=f*f*(3.0-2.0*f);
+  return mix(mix(mix(h31(i),h31(i+vec3(1,0,0)),f.x),mix(h31(i+vec3(0,1,0)),h31(i+vec3(1,1,0)),f.x),f.y),
+             mix(mix(h31(i+vec3(0,0,1)),h31(i+vec3(1,0,1)),f.x),mix(h31(i+vec3(0,1,1)),h31(i+vec3(1,1,1)),f.x),f.y),f.z); }
+float joint(float v, float w){ float c=abs(fract(v)-0.5); return smoothstep(0.5-w*1.6, 0.5-w*0.4, c); }`)
+    .replace('#include <color_fragment>', `#include <color_fragment>
+{
+  vec3 wp=vWPos, an=abs(vWN); float n = vn(wp*2.1)*.6 + vn(wp*8.0)*.4;
+  bool cut = vWN.z>0.9 && wp.z>-0.001;
+  if(vCls<1.5){
+    if(cut) diffuseColor.rgb = vec3(.30,.27,.23)*(.9+.2*n);
+    else if(an.y>.5){ vec2 g=wp.xz/0.6; float j=max(joint(g.x,.012),joint(g.y,.012)); diffuseColor.rgb *= (.93+.12*n)*(1.0-.16*j); }
+    else { float j=joint(wp.y/0.45,.012); float k=joint((wp.x+wp.z)/0.9+floor(wp.y/0.45)*.5,.008)*(1.0-step(.5,an.y)); diffuseColor.rgb *= (.9+.16*n)*(1.0-.12*max(j,k)); }
+  } else if(vCls<2.5){
+    float st = sin(wp.y*8.0 + n*4.0)*.5+.5;
+    diffuseColor.rgb *= cut ? (.84+.1*st+.08*n) : (.94+.1*n);
+  } else if(vCls<4.5){
+    float g = sin((wp.x*.7+wp.z+wp.y*.3)*38.0 + n*7.0)*.5+.5; diffuseColor.rgb *= .9+.1*g;
+  } else if(vCls<5.5){
+    diffuseColor.rgb *= .72+.5*vn(wp*6.0);
+  } else if(vCls<6.5){
+    vec2 g=wp.xz/0.4; float j=max(joint(g.x,.02),joint(g.y,.02)); diffuseColor.rgb *= (.92+.1*n)*(1.0-.2*j);
+  } else if(vCls<7.5){
+    float wv = sin(wp.x*260.0)*sin(wp.z*260.0+wp.y*260.0); diffuseColor.rgb *= .95+.04*wv+.06*(n-.5);
+  } else if(vCls<8.5){
+    diffuseColor.rgb *= .9+.15*n;
+  } else {
+    diffuseColor.rgb *= .97+.05*n;
+  }
+}`);
+};
+const litMesh = new THREE.Mesh(subGeo(c=>c!==CLS.GLASS), litMat); litMesh.castShadow = litMesh.receiveShadow = true; litMesh.frustumCulled=false;
+const glassMat = new THREE.MeshStandardMaterial({color:0xffffff, vertexColors:true, roughness:.05, metalness:0, transparent:true, opacity:.28, depthWrite:false});
+glassMat.onBeforeCompile = clipInject;
+const glassMesh = new THREE.Mesh(subGeo(c=>c===CLS.GLASS), glassMat);
+glassMesh.frustumCulled=false;
+litScene.add(litMesh, glassMesh);
+const hemi = new THREE.HemisphereLight(0xdfe8f0, 0xc9a77c, 1.6); litScene.add(hemi);
+const sun = new THREE.DirectionalLight(0xffdcb0, 3.4);
+sun.position.copy(new THREE.Vector3(20,3,-5).addScaledVector(SUN_DIR, 60)); sun.target.position.set(20,3,-5);
+sun.castShadow = true; sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-30,right:30,top:22,bottom:-22,near:1,far:130});
+sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03;
+litScene.add(sun, sun.target);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+/* ---- our own sun depth map, used to raymarch the beams in the ink shader ---- */
+const sunCam = new THREE.OrthographicCamera(-30,30,22,-22,1,130);
+sunCam.position.copy(sun.position); sunCam.lookAt(sun.target.position); sunCam.updateMatrixWorld(); sunCam.updateProjectionMatrix();
+const matSun = new THREE.ShaderMaterial({ side:THREE.DoubleSide,
+  vertexShader:`varying float vD; void main(){ vec4 mv=modelViewMatrix*vec4(position,1.0); vD=-mv.z; gl_Position=projectionMatrix*mv; }`,
+  fragmentShader:`varying float vD; void main(){ gl_FragColor=vec4(vD,0.0,0.0,1.0); }`});
+const sunScene = new THREE.Scene(); const sunMesh = new THREE.Mesh(litMesh.geometry, matSun); sunMesh.frustumCulled=false; sunScene.add(sunMesh);
+
+/* ================================================================
+   HOUSE B — the plan chapter. Transcribed from the client's ground-floor
+   drawing at its 1:100 bar (16 px = 1 m). Local metres: X from the west
+   face of the living room, Z from the north boundary; placed in the world at
+   (+9, −10.85) so it sits on the same sheet centre as the section house.
+================================================================ */
+const HB = { OX:9, OZ:-10.85 };
+P.length = 0; N.length = 0; C.length = 0; CO.length = 0; BM.length = 0;
+{
+  const F = FFL, C1 = F + 3.0, R1 = C1 + .3, U2 = R1 + 3.0, R2 = U2 + .3;
+  const glassZ = (x0,x1,z,y0=F,y1=C1,step=1.6) => { box(x0,x1,y0,y1,z-.02,z+.02,G); for(let x=x0; x<=x1+1e-3; x+=step) box(Math.min(x,x1)-.035,Math.min(x,x1)+.035,y0,y1,z-.05,z+.05,J,PAL.bronze); };
+  const glassX = (z0,z1,x,y0=F,y1=C1,step=1.6) => { box(x-.02,x+.02,y0,y1,z0,z1,G); for(let z=z0; z<=z1+1e-3; z+=step) box(x-.05,x+.05,y0,y1,Math.min(z,z1)-.035,Math.min(z,z1)+.035,J,PAL.bronze); };
+  const WATER = lin(0x7fb4b8);
+  const arm = (x,z,face,col=PAL.oat) => {      // lounge chair, face ±1 along z
+    const zb = z - face*.36;
+    legs(x-.4,x+.4,z-.4,z+.4,F,F+.1,.06,.014);
+    rbox(x-.4,x+.4,F+.1,F+.46,z-.4,z+.4,.08,FB,col);
+    rbox(x-.4,x+.4,F+.4,F+.86,Math.min(zb,zb-face*.18),Math.max(zb,zb-face*.18),.08,FB,col);
+  };
+
+  /* ground: earth with the pool and jacuzzi pits */
+  box(-12,32,-3,-1.6,-2,18,E);
+  box(-12,19.6,-1.6,0,-2,18,E); box(28.2,32,-1.6,0,-2,18,E);
+  box(19.6,28.2,-1.6,0,-2,9.7,E); box(19.6,28.2,-1.6,0,13.2,18,E);
+  box(19.6,28.2,-1.6,-1.45,9.7,13.2,S);
+  box(19.6,19.8,-1.45,.3,9.7,13.2,S); box(28.0,28.2,-1.45,.3,9.7,13.2,S); box(19.8,28.0,-1.45,.3,9.7,9.9,S); box(19.8,28.0,-1.45,.3,13.0,13.2,S);
+  box(19.8,28.0,-1.45,.12,9.9,13.0,G,WATER);
+
+  /* paving and decks */
+  box(-3.6,0,0,.04,5.3,7.0,PV); box(0,4.35,0,.3,4.95,5.6,PV);                      // street path and porch
+  box(-5.6,.9,0,.04,9.9,15.6,PV);                                                    // carport
+  box(20.4,23.1,0,.3,0,5.1,PV); box(23.1,25.1,0,.3,0,1.3,PV); box(25.1,25.6,0,.3,0,5.1,PV); box(23.1,25.1,0,.3,5.0,5.1,PV);
+  box(23.1,25.1,-.55,.18,1.3,5.0,G,WATER);                                            // jacuzzi
+  box(14.0,28.2,0,.3,6.9,9.7,PV); box(14.0,28.2,0,.3,13.2,15.0,PV); box(14.0,19.6,0,.3,9.7,13.2,PV);
+  box(11.3,14.0,0,F,6.9,15.0,PV);                                                     // covered terrace
+  for(const [x,z] of [[6.4,4.6],[7.4,3.6],[8.3,2.4],[9.3,1.3]]) box(x-.35,x+.35,0,.06,z-.28,z+.28,PV);   // stepping stones in the court garden
+
+  /* indoor slabs */
+  box(0,4.45,0,F,1.65,4.95,S); box(3.45,5.7,0,F,0,1.65,S); box(4.45,5.7,0,F,1.65,5.6,S); box(4.45,11.3,0,F,5.6,6.8,S);
+  box(10.1,12.6,0,F,0,6.8,S); box(12.6,20.4,0,F,0,5.1,S); box(19.6,24.5,0,F,5.1,6.9,S); box(6.7,11.3,0,F,6.8,14.95,S);
+  box(1.0,3.2,0,F,10.3,14.95,S); box(3.2,6.7,0,F,11.9,14.95,S); box(28.2,30,0,F,8.1,14.7,S);
+
+  /* boundary walls */
+  box(-6,0,0,2.8,-.2,0,S); box(24.5,30.2,0,2.8,-.2,0,S); box(30,30.2,0,2.8,0,16.4,S); box(-6,30.2,0,2.8,16.2,16.4,S);
+  box(13.4,29.9,0,.5,6.86,6.98,CE,PAL.stone);                                         // planter edge along the garden strip
+
+  /* north wall of the house, single storey then two storeys */
+  box(0,9.6,0,C1,-.2,0,S); box(9.6,24.5,0,U2,-.2,0,S);
+
+  /* living room */
+  wallX(-.2,0,0,5.6,0,C1);
+  box(0,4.75,F,C1,1.55,1.75,S);
+  wallZ(4.85,5.05,0,4.45,F,C1,[[.1,1.25,F,2.8]]);
+  box(.12,.17,F,2.8,3.92,4.85,J,lin(0xb99a74));                                       // front door leaf, open
+  glassX(1.75,3.9,4.45); box(4.47,4.51,F+.02,3.0,3.0,3.9,G); box(4.38,4.52,3.0,C1,3.9,4.85,S);
+  box(4.35,4.55,0,C1,4.95,5.6,S);                                                     // porch return
+  box(-.2,4.75,C1,R1,1.55,5.6,S); box(3.35,5.8,C1,R1,-.2,1.75,S);
+  box(.5,4.0,F,F+.012,2.5,4.6,FB,PAL.linen);
+  sofa(.6,3.9,1.75,2.62,PAL.oat,PAL.linen);
+  cone(2.25,F,.82,3.55,.38,.38,J,PAL.walnut,28); cone(2.25,.82,1.05,3.55,.08,.06,CE,PAL.white);
+  arm(1.45,4.15,-1,PAL.clay); arm(3.05,4.15,-1,PAL.clay);
+  box(0,.03,1.35,2.75,2.3,3.9,FB,lin(0x9c6b4a));                                      // painting on the west wall
+  rod(3.95,F,1.95,2.05,.014); cone(3.95,F,F+.03,2.05,.16,.16,MT,PAL.bronze); cone(3.95,1.72,2.02,2.05,.22,.17,FB,PAL.cream,24);
+
+  /* WC */
+  box(3.35,3.55,F,C1,0,1.55,S); box(5.6,5.8,0,C1,0,1.75,S);
+  cone(3.95,F,F+.42,.38,.2,.22,CE,PAL.white,18); rbox(4.45,5.45,F,1.3,0,.45,.02,CE,PAL.stone); cone(4.95,1.3,1.42,.24,.16,.18,CE,PAL.white,18);
+
+  /* galleries around the court garden */
+  glassX(1.75,5.6,5.7); box(4.45,5.8,C1,R1,1.75,5.6,S);
+  glassZ(5.72,10.1,5.6); box(4.45,11.3,C1,R1,5.6,6.9,S);
+  glassX(5.6,6.8,4.45); glassZ(4.45,6.7,6.8);
+  wallZ(6.7,6.9,6.6,11.4,F,C1,[[8.4,9.9,F,3.0]]);
+  box(8.42,8.46,F+.02,3.0,6.9,7.55,G); box(9.84,9.88,F+.02,3.0,6.9,7.55,G);             // folding doors, folded back
+  glassX(0,5.6,10.1);
+
+  /* court garden (open to the sky) */
+  limb([7.3,0,1.6],[7.25,2.0,1.55],.14,.1,V,BARK); canopy(7.3,2.6,1.6,1.1,.5,1.0,9,.5,LEAF,99);
+  limb([8.8,0,4.0],[8.85,2.2,3.9],.14,.1,V,BARK); canopy(8.8,2.8,4.0,1.2,.5,1.0,9,.5,LEAF2,99);
+  shrub(6.3,0,1.0,.7,5,LEAF3); shrub(9.6,0,2.6,.6,4,LEAF); shrub(6.6,0,3.0,.55,4,LEAF2); shrub(9.3,0,5.0,.5,3,LEAF3);
+
+  /* stair hall and stair to the upper floor */
+  for(let i=0;i<18;i++) box(10.15,11.25,F,F+(i+1)*(3.3/18),3.6-(i+1)*.19,3.6-i*.19,J,PAL.stone);
+  box(9.5,10.1,C1,R1,-.2,5.2,S); box(11.3,24.7,C1,R1,-.2,5.2,S); box(10.1,11.3,C1,R1,3.6,5.2,S);
+
+  /* walk-in closet */
+  wallX(12.5,12.7,0,5.25,F,C1,[[4.2,5.05,F,2.8]]); box(12.5,16.0,F,C1,4.0,4.2,S);
+  wallX(15.8,16.0,0,4.1,F,C1,[[1.4,2.75,F,2.8]]);
+  rbox(12.7,13.3,F,2.8,0,4.0,.01,J,PAL.walnut); rbox(13.3,15.8,F,2.8,0,.6,.01,J,PAL.walnut); rbox(15.2,15.8,F,2.8,2.9,4.0,.01,J,PAL.walnut);
+  rbox(13.8,14.9,F,1.38,1.5,2.7,.02,J,PAL.oak); box(13.75,14.95,1.38,1.42,1.45,2.75,CE,PAL.stone);
+
+  /* master bedroom */
+  box(12.5,15.3,F,C1,5.05,5.25,S); glassZ(15.3,19.6,5.15);
+  box(19.6,19.8,F,C1,5.05,6.95,S); box(20.8,24.5,F,C1,5.05,5.25,S);
+  glassX(0,3.5,20.4); glassX(4.6,5.05,20.4); box(20.42,20.46,F+.02,3.0,2.5,3.5,G); box(20.33,20.47,3.0,C1,3.5,4.6,S);
+  box(16.2,19.4,F,F+.012,1.2,4.6,FB,PAL.oat);
+  rbox(16.45,18.75,F,1.65,0,.12,.03,J,PAL.walnut);
+  rbox(16.6,18.6,F,.73,.15,2.4,.03,J,PAL.oak); rbox(16.65,18.55,.73,.98,.19,2.36,.06,FB,PAL.white);
+  rbox(16.58,18.62,.9,1.06,.9,2.48,.05,FB,PAL.linen);
+  rbox(16.8,17.55,.96,1.16,.22,.62,.08,FB,PAL.cream); rbox(17.65,18.4,.96,1.16,.22,.62,.08,FB,PAL.cream);
+  for(const x0 of [15.95,18.75]){ rbox(x0,x0+.5,F,.95,.05,.5,.02,J,PAL.walnut); cone(x0+.25,.95,1.22,.27,.07,.05,CE,PAL.white); cone(x0+.25,1.22,1.45,.27,.16,.12,FB,PAL.cream,20); }
+  rbox(16.8,18.4,F+.05,.9,2.55,2.95,.05,FB,PAL.clay); legs(16.8,18.4,2.55,2.95,F,F+.06,.05,.012);
+  arm(19.6,3.9,-1,PAL.linen);
+
+  /* terrace, jacuzzi */
+  for(const z of [2.4,4.0]){ cone(22.7,.3,.42,z,.32,.32,J,PAL.walnut,20); dblob(22.7,.62,z,.42,.28,.38,.1,14,FB,PAL.walnut); }
+  box(23.0,25.2,.18,.3,1.15,1.3,CE,PAL.stone); box(23.0,25.2,.18,.3,5.0,5.15,CE,PAL.stone);
+
+  /* bath */
+  box(19.6,24.6,0,C1,6.75,6.95,S); box(24.4,24.6,F,C1,5.05,6.95,S); box(19.6,24.6,C1,R1,5.05,6.95,S);
+  rbox(19.9,21.3,F,1.3,6.25,6.75,.01,J,PAL.oak); box(19.88,21.32,1.3,1.34,6.23,6.75,CE,PAL.stone);
+  for(const x of [20.25,20.95]) cone(x,1.34,1.46,6.5,.15,.17,CE,PAL.white,18);
+  cone(21.75,F,F+.42,6.45,.2,.22,CE,PAL.white,18);
+  box(22.2,22.24,F,2.6,5.25,6.75,G); box(23.3,23.34,F,2.6,5.25,6.75,G);
+
+  /* upper floor (massing over the suite) */
+  box(9.5,9.7,R1,U2,-.2,5.2,S); box(9.7,24.5,R1,R1+.9,5.0,5.2,S); glassZ(9.7,24.5,5.1,R1+.9,U2,2.0);
+  glassX(0,5.2,24.6,R1,U2,1.8); box(9.5,24.7,U2,R2,-.2,5.2,S); box(9.5,24.7,R2,R2+.35,-.2,-.05,S);
+
+  /* dining and kitchen */
+  glassX(6.9,11.9,6.7); wallX(6.6,6.8,11.9,14.95,F,C1,[[13.3,14.15,F,2.7]]);
+  glassX(6.9,8.2,11.27); glassX(10.2,14.8,11.27); box(11.29,11.33,F+.02,3.0,10.2,12.2,G); box(11.2,11.34,3.0,C1,8.2,10.2,S);
+  box(6.6,11.4,0,C1,14.75,14.95,S); box(6.6,11.4,C1,R1,6.7,14.95,S);
+  box(7.3,10.5,F,F+.012,8.0,10.8,FB,PAL.linen);
+  rbox(7.6,10.2,1.17,1.22,8.6,10.2,.02,J,PAL.oak);
+  for(const x of [7.85,9.95]) for(const z of [8.85,9.95]) cone(x,F,1.17,z,.03,.045,J,PAL.oak,8);
+  for(const x of [8.1,8.9,9.7]){ chair(x,8.15,1); chair(x,10.65,-1); }
+  for(const x of [8.25,8.9,9.55]){ rod(x,2.62,C1,9.4,.004); cone(x,2.38,2.62,9.4,.2,.05,MT,PAL.bronze,20); }
+  rbox(8.0,11.0,F,1.31,12.1,13.2,.02,J,PAL.oak); box(7.95,11.05,1.31,1.36,12.05,13.25,CE,PAL.stone);
+  box(9.1,9.7,1.36,1.37,12.4,12.9,MT); 
+  for(const x of [8.6,9.5,10.4]){ cone(x,1.03,1.09,11.7,.18,.18,J,PAL.walnut,18); legs(x-.14,x+.14,11.56,11.84,F,1.03,.02,.012); }
+  rbox(6.85,11.1,F,1.31,14.15,14.75,.01,J,PAL.oak); box(6.83,11.12,1.31,1.36,14.1,14.75,CE,PAL.stone);
+  box(6.85,11.1,2.0,2.9,14.42,14.75,J,PAL.oak);
+  for(const x of [7.9,8.6]) cone(x,1.36,1.38,14.45,.18,.18,MT,lin(0x8f9599),18);
+  for(const x of [9.35,10.2]){ rod(x,2.7,C1,12.65,.004); cone(x,2.5,2.7,12.65,.16,.05,MT,PAL.bronze,20); }
+
+  /* pantry and laundry */
+  box(3.7,6.9,F,C1,11.8,12.0,S); box(4.3,6.9,0,C1,14.2,14.4,S); box(5.9,6.1,F,C1,12.0,13.1,S);
+  rbox(3.8,5.8,F,2.6,12.0,12.45,.01,J,PAL.oak);
+  for(const y of [1.2,1.75,2.3]) for(let x=3.95;x<5.7;x+=.2+rnd()*.12) cone(x,y,y+.12+rnd()*.12,12.22,.05+rnd()*.03,.05+rnd()*.03,CE,rnd()<.3?PAL.terra:PAL.white,12);
+  box(.9,1.1,0,C1,10.3,15.05,S); box(.9,3.3,0,C1,10.2,10.4,S); box(.9,3.3,0,C1,14.85,15.05,S);
+  wallX(3.1,3.3,10.3,14.85,F,C1,[[13.2,14.2,F,2.7]]);
+  rbox(1.15,2.95,F,1.35,10.4,11.0,.02,J,PAL.white); box(1.12,2.98,1.35,1.39,10.38,11.02,CE,PAL.stone);
+  box(.9,3.3,C1,R1,10.2,15.05,S); box(3.3,6.9,C1,R1,11.8,15.05,S);
+
+  /* carport: posts, beams and a slatted roof; two cars */
+  for(const x of [-5.4,-2.3,.7]) for(const z of [10.05,15.45]) rod(x,0,2.75,z,.06,MT,PAL.bronze);
+  box(-5.6,1.0,2.7,2.85,9.95,10.15,J); box(-5.6,1.0,2.7,2.85,15.35,15.55,J);
+  for(let x=-5.55; x<.95; x+=.3) box(x,x+.08,2.85,2.95,9.9,15.6,J,PAL.oak);
+  for(const [z0,col] of [[10.85,lin(0x3c4147)],[13.2,lin(0xd8d4cc)]]){
+    rbox(-4.75,-.15,.18,.95,z0,z0+1.82,.25,MT,col); rbox(-3.75,-1.45,.9,1.42,z0+.12,z0+1.7,.3,G);
+    for(const x of [-4.05,-.85]) for(const z of [z0+.08,z0+1.74]) { const g=new THREE.CylinderGeometry(.33,.33,.22,16); g.rotateX(Math.PI/2); g.translate(x,.33,z); addGeom(g,MT,lin(0x222222)); }
+  }
+
+  /* covered terrace with its brick lattice */
+  box(11.3,14.05,C1,R1,6.9,15.0,S);
+  for(let z=7.0, r=0; z<14.9; z+=.42){ for(let y=F, k=0; y<C1-.05; y+=.3, k++){ const o=(k%2)*.21; let z0=Math.min(z+o,14.88), z1=Math.min(z+o+.32,14.9);
+    if(y < 2.85){ if(z1 > 10.1 && z0 < 11.9) continue; } if(z1-z0>.05) box(13.95,14.05,y,y+.2,z0,z1,J,PAL.terra); } }
+  box(13.92,14.08,2.85,2.95,10.1,11.9,J,PAL.walnut);
+  sofa(11.5,13.6,7.55,8.45,PAL.sand,PAL.linen);
+  sofa(11.5,13.6,14.35,13.45,PAL.sand,PAL.linen);
+  rbox(12.0,13.1,F,.82,10.4,11.6,.02,J,PAL.walnut);
+  pot(11.75,12.6,F,.28,.5); shrub(11.75,.95,12.6,.6,4,LEAF);
+
+  /* plant room and pool WC */
+  box(28.2,28.4,0,C1,8.1,14.7,S); box(28.4,30,F,C1,10.55,10.75,S); box(28.4,30,F,C1,11.2,11.4,S); box(28.2,30,C1,R1,8.1,14.7,S);
+  cone(29.6,F,F+.42,13.4,.2,.22,CE,PAL.white,18);
+  for(const z of [11.2,12.0]){ rbox(16.0,16.7,.3,.62,z-1.0,z,.06,FB,PAL.cream); }       // pool loungers
+  for(const z of [11.2,12.0]) rbox(16.0,16.75,.3,.64,z-.92+1.6,z+1.6,.06,FB,PAL.cream);
+
+  /* trees and planting */
+  const tree = (x,z,r,h,col) => { limb([x,0,z],[x+.1,h*.45,z-.05],r*.11,r*.08,V,BARK);
+    limb([x+.1,h*.42,z-.05],[x-r*.45,h*.7,z+r*.2],r*.06,r*.035,V,BARK); limb([x+.1,h*.42,z-.05],[x+r*.5,h*.72,z-r*.25],r*.06,r*.035,V,BARK);
+    canopy(x,h*.78,z,r,h*.18,r,Math.round(10+r*6),r*.34,col,99); canopy(x,h*.66,z,r*1.05,h*.08,r*1.05,6,r*.26,LEAF2,99); };
+  tree(-4.3,2.6,2.3,7.0,LEAF); tree(.6,8.3,2.1,6.5,LEAF3); tree(2.0,.8,1.1,5.0,LEAF2);
+  tree(5.6,8.0,1.0,4.2,LEAF); tree(5.6,10.9,1.0,4.0,LEAF2); tree(12.0,7.55,.8,3.8,LEAF3); tree(12.0,14.3,.8,3.8,LEAF);
+  tree(16.4,6.0,1.8,6.0,LEAF); tree(22.0,15.4,2.0,6.2,LEAF3); tree(27.9,1.3,1.5,5.5,LEAF2); tree(27.6,4.0,2.0,6.0,LEAF);
+  tree(-8.0,14.4,1.4,5.0,LEAF2);
+  for(let x=14.4;x<28;x+=.75+rnd()*.4) shrub(x,0,15.7+rnd()*.2,.5+rnd()*.2,3,rnd()<.5?LEAF:LEAF3);
+  for(let x=13.6;x<19.4;x+=.8+rnd()*.3) shrub(x,0,6.5,.45,3,LEAF2);
+  for(let z=.4;z<9.6;z+=.8+rnd()*.3) shrub(-5.6,0,z,.55,3,rnd()<.5?LEAF:LEAF3);
+  for(let z=7.2;z<11.6;z+=.7) shrub(4.95,0,z,.4,3,LEAF3);
+  for(const [x,z] of [[25.6,6.0],[26.8,2.6],[29.2,6.2],[29.3,.6]]) shrub(x,0,z,.6,4,LEAF2);
+}
+for(let i=0;i<P.length;i+=3){ P[i] += HB.OX; P[i+2] += HB.OZ; }
+for(let i=0;i<BM.length;i+=3){ if(BM[i] > -9000){ BM[i] += HB.OX; BM[i+2] += HB.OZ; } }
+const geoB = new THREE.BufferGeometry();
+geoB.setAttribute('position', new THREE.Float32BufferAttribute(P,3));
+geoB.setAttribute('normal',   new THREE.Float32BufferAttribute(N,3));
+geoB.setAttribute('cls',      new THREE.Float32BufferAttribute(C,1));
+geoB.setAttribute('bmin',     new THREE.Float32BufferAttribute(BM,3));
+const houseB = new THREE.Mesh(geoB); houseB.frustumCulled = false; houseB.visible = false; scene.add(houseB);
+const litMeshB = new THREE.Mesh(subGeo(c=>c!==CLS.GLASS), litMat); litMeshB.castShadow = litMeshB.receiveShadow = true; litMeshB.frustumCulled = false; litMeshB.visible = false;
+const glassMeshB = new THREE.Mesh(subGeo(c=>c===CLS.GLASS), glassMat); glassMeshB.frustumCulled = false; glassMeshB.visible = false;
+litScene.add(litMeshB, glassMeshB);
+const sunMeshB = new THREE.Mesh(litMeshB.geometry, matSun); sunMeshB.frustumCulled = false; sunMeshB.visible = false; sunScene.add(sunMeshB);
+function showHouse(b){
+  house.visible = litMesh.visible = glassMesh.visible = sunMesh.visible = !b;
+  houseB.visible = litMeshB.visible = glassMeshB.visible = sunMeshB.visible = b;
+}
+
+let sunKey = 0;                 // 0 = not set yet, so the first call always shows the house
+const SUN2_DIR = new THREE.Vector3(-0.294, 0.382, -0.876).normalize();  // 21 June 17:00 (az 286°, alt 22°) in the plan house's north
+function setSun(ch){
+  if(sunKey === ch) return; sunKey = ch;
+  const dir = SUN2_DIR, c = new THREE.Vector3(20,3,-3); showHouse(true);
+  sun.position.copy(c).addScaledVector(dir, 60); sun.target.position.copy(c); sun.target.updateMatrixWorld();
+  sun.color.set(0xffc690); sun.intensity = 3.9;
+  sunCam.position.copy(sun.position); sunCam.lookAt(c); sunCam.updateMatrixWorld();
+  sunVP.multiplyMatrices(sunCam.projectionMatrix, sunCam.matrixWorldInverse); sunBaked = false;
+}
+const sunVP = new THREE.Matrix4().multiplyMatrices(sunCam.projectionMatrix, sunCam.matrixWorldInverse);
+
+/* ================================================================
+   4. G-BUFFER PASSES (normal+depth, position+class) → INK SHADER
+================================================================ */
+const gVert = `
+attribute float cls; attribute vec3 bmin; uniform float uRef; uniform float uCutZ; uniform float uCutY;
+varying vec3 vN; varying vec3 vP; varying float vD; varying float vC; varying vec3 vBm; varying vec3 vCw;
+void main(){
+  vec3 transformed = position;` + CLAMP_V + `
+  vec4 wp = modelMatrix*vec4(transformed,1.0); vP = wp.xyz; vN = normal; vC = cls; vBm = bmin; vCw = vP;
+  vec4 mv = viewMatrix*wp; vD = -mv.z - uRef;
+  gl_Position = projectionMatrix*mv;
+}`;
+const uRef = {value:0};
+const matN = new THREE.ShaderMaterial({ side:THREE.DoubleSide, uniforms:{uRef, uCutZ:CUT.uCutZ, uCutY:CUT.uCutY},
+  vertexShader:gVert, fragmentShader:`uniform float uCutZ; uniform float uCutY; varying vec3 vN; varying vec3 vP; varying float vD; varying float vC; varying vec3 vBm; varying vec3 vCw;
+  void main(){` + CLIP_F + ` vec3 n = normalize(vN)*(gl_FrontFacing?1.0:-1.0); gl_FragColor = vec4(n, vD); }`});
+const matP = new THREE.ShaderMaterial({ side:THREE.DoubleSide, uniforms:{uRef, uCutZ:CUT.uCutZ, uCutY:CUT.uCutY},
+  vertexShader:gVert, fragmentShader:`uniform float uCutZ; uniform float uCutY; varying vec3 vN; varying vec3 vP; varying float vD; varying float vC; varying vec3 vBm; varying vec3 vCw;
+  void main(){` + CLIP_F + ` gl_FragColor = vec4(vP, vC); }`});
+
+const rtOpts = {type: floatOK?THREE.FloatType:THREE.HalfFloatType, minFilter:THREE.NearestFilter, magFilter:THREE.NearestFilter, depthBuffer:true, stencilBuffer:false};
+const rtN = new THREE.WebGLRenderTarget(4,4,rtOpts);
+const rtP = new THREE.WebGLRenderTarget(4,4,rtOpts);
+const rtLit = new THREE.WebGLRenderTarget(4,4,{type:THREE.HalfFloatType, minFilter:THREE.NearestFilter, magFilter:THREE.NearestFilter, depthBuffer:true});
+const rtSun = new THREE.WebGLRenderTarget(2048,2048,{type: floatOK?THREE.FloatType:THREE.HalfFloatType, minFilter:THREE.NearestFilter, magFilter:THREE.NearestFilter, depthBuffer:true});
+let sunBaked = false;
+
+const inkFrag = `
+precision highp float;
+uniform sampler2D tN; uniform sampler2D tP;
+uniform vec2 uRes; uniform float uPix; uniform float uRef; uniform float uDpr;
+uniform float uCutX; uniform float uBehind; uniform float uTime;
+uniform vec3 uInk; uniform vec3 uPaper; uniform vec3 uAmber;
+uniform sampler2D tLit; uniform sampler2D tSun; uniform mat4 uSunVP; uniform mat4 uSunView; uniform mat4 uInvVP;
+uniform float uCutZ; uniform float uCutY; uniform float uPlanK; uniform float uSheet; uniform float uFlatDepth; uniform float uDepthScale;
+uniform float uRoomMode; uniform float uHouseB; uniform vec4 uRR[9]; uniform vec4 uRS[9];
+uniform vec3 uCam; uniform float uInkLit; uniform float uBeamK; uniform float uScanX; uniform float uScanOn; uniform float uBeam; uniform float uLitOn;
+varying vec2 vUv;
+
+/* beams: how much sunlit air the view ray crosses inside the rooms */
+/* plan chapter: a room is lit where its sweep has passed (rect xz, sweep axis/direction/progress) */
+float roomT(int i, vec3 p){
+  vec4 r = uRR[i], s = uRS[i];
+  if(s.x <= 0.0 || p.x < r.x || p.x > r.z || p.z < r.y || p.z > r.w) return -1.0;
+  float t = s.y < 0.5 ? (p.x - r.x)/(r.z - r.x) : (p.z - r.y)/(r.w - r.y);
+  return s.z > 0.0 ? t : 1.0 - t;
+}
+bool isLit(vec3 p){
+  if(uRoomMode < 0.5) return p.x < uScanX;
+  for(int i=0;i<9;i++){ float t = roomT(i, p); if(t >= 0.0 && t < uRS[i].x) return true; }
+  return false;
+}
+float frontDist(vec3 p){
+  if(uRoomMode < 0.5) return abs(p.x - uScanX);
+  float d = 1e3;
+  for(int i=0;i<9;i++){ vec4 s = uRS[i]; if(s.x <= 0.0 || s.x >= 1.0) continue; float t = roomT(i, p); if(t < 0.0) continue;
+    vec4 r = uRR[i]; float L = s.y < 0.5 ? r.z - r.x : r.w - r.y; d = min(d, abs(t - s.x)*L); }
+  return d;
+}
+float density(vec3 q){
+  if(uHouseB > 0.5){
+    bool inB = q.y > 0.45 && q.y < 3.45 && (
+      (q.x>9.0 && q.x<13.45 && q.z>-9.2 && q.z<-5.25) || (q.x>13.45 && q.x<14.7 && q.z>-9.2 && q.z<-5.25) ||
+      (q.x>13.45 && q.x<20.3 && q.z>-5.25 && q.z<-4.05) || (q.x>15.7 && q.x<20.3 && q.z>-4.05 && q.z<4.1) ||
+      (q.x>21.6 && q.x<29.4 && q.z>-10.85 && q.z<-5.75) || (q.x>20.3 && q.x<23.0 && q.z>-3.95 && q.z<4.15));
+    return inB ? step(q.z, uCutZ) : 0.0;
+  }
+  bool fr = q.x>5.15 && q.x<18.35 && q.y>0.45 && q.y<5.25;
+  bool bk = q.x>24.65 && q.x<35.35 && q.y>0.45 && q.y<7.95;
+  bool ct = q.x>18.65 && q.x<24.35 && q.y>0.3 && q.y<9.2;
+  float d = (fr||bk) ? 1.0 : (ct ? 0.05 : 0.0);
+  return d * step(q.z, min(3.98, uCutZ)) * step(-9.95, q.z) * step(q.y, uCutY);
+}
+float sunlit(vec3 q){
+  vec4 v = uSunView*vec4(q,1.0); vec4 c = uSunVP*vec4(q,1.0);
+  vec2 uv = c.xy*0.5+0.5; float d = texture2D(tSun, uv).r;
+  return step(-v.z, d + 0.06);
+}
+
+float hash3(vec3 p){ p = fract(p*0.3183099+.1); p*=17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
+
+bool isCut(vec4 n, vec4 p){
+  if(p.a < 0.5) return false;
+  bool zc = n.z>0.9 && p.z>uCutZ-0.001 && p.z<uCutZ+0.006;
+  bool yc = n.y>0.9 && abs(p.y-uCutY)<0.004;
+  return zc || yc;
+}
+/* signed distance behind the active cut plane(s), as the old 'z' (≤0 behind) */
+float zb(vec3 p){ return uFlatDepth > 0.0 ? -uFlatDepth : -min(uCutZ - p.z, uCutY - p.y); }
+
+/* how much of the drawing is revealed at this surface point */
+float reveal(float z, float x){
+  if(z > -0.05) return smoothstep(x-0.01, x+0.25, uCutX);
+  return smoothstep(-z-0.2, -z+0.6, uBehind*uDepthScale);
+}
+/* lines behind the cut get lighter with depth, like a hand section */
+float weightZ(float z){ return z > -0.05 ? 0.8 : mix(0.44, 0.16, smoothstep(0.3, 9.0, -z)); }
+
+void main(){
+  vec2 px = 1.0/uRes;
+  vec4 n0 = texture2D(tN, vUv), p0 = texture2D(tP, vUv);
+  bool hit0 = p0.a > 0.5;
+  float cls0 = floor(p0.a+0.5);
+  float foot = max((n0.a+uRef)*uPix, 1e-4);   // world size of one pixel here
+  bool cut0 = isCut(n0,p0);
+
+  /* ---- fill ---- */
+  vec3 col = uPaper;
+  vec2 gp = mod(gl_FragCoord.xy, 24.0*uDpr);
+  if(gp.x < uDpr && gp.y < uDpr) col = mix(col, uInk, 0.08);
+
+  if(hit0){
+    if(cut0){
+      float v = reveal(0.0, p0.x);
+      if(cls0==1.0 || cls0==6.0) col = mix(col, uInk, 0.62*v);
+      else if(cls0==3.0) col = mix(col, uInk, 0.5*v);
+      else if(cls0!=2.0) col = mix(col, uInk, 0.12*v);
+      else if(cls0==2.0){
+        float h = (p0.x + p0.y)/0.45;
+        float w = max(fwidth(h), 1e-4);
+        float d = min(fract(h), 1.0-fract(h))/w;
+        float line = 1.0 - smoothstep(0.35, 1.1, d);
+        float h2 = (p0.x - p0.y)/0.96;
+        float w2 = max(fwidth(h2),1e-4);
+        float d2 = min(fract(h2),1.0-fract(h2))/w2;
+        line = max(line, 0.2*(1.0-smoothstep(0.35,1.1,d2)) * step(0.5, fract(h*0.5)));
+        col = mix(col, uInk, line*0.24*v);
+      }
+      // plotter head: an amber stroke where the cut is being inked
+      float head = 1.0 - smoothstep(foot*1.0, foot*3.0, abs(p0.x - uCutX));
+      col = mix(col, uAmber, head * step(uCutX, 45.0) * step(-5.0, uCutX));
+    } else {
+      float v = reveal(zb(p0.xyz), p0.x);
+      if(cls0==3.0) col = mix(col, uInk, 0.03*v);
+      if(uPlanK > 0.0 && n0.y > 0.9 && (cls0==1.0 || cls0==6.0)){
+        vec2 g = p0.xz/0.6; vec2 w = max(fwidth(g), vec2(1e-4)); vec2 gl = abs(fract(g+0.5)-0.5)/w;
+        col = mix(col, uInk, 0.07*uPlanK*v*(1.0 - min(1.0, min(gl.x, gl.y))));
+      }
+      if(cls0==5.0){
+        float sh = 0.5 - 0.5*dot(n0.xyz, normalize(vec3(-0.45,0.8,0.4)));
+        float r = hash3(floor(p0.xyz/0.07));
+        float dotm = step(0.93 - sh*0.32, r);
+        col = mix(col, uInk, dotm * 0.45 * v * weightZ(zb(p0.xyz)));
+      }
+    }
+  }
+
+  /* ---- lines ---- */
+  float ink = 0.0;
+  vec2 offs[8];
+  offs[0]=vec2(1,0); offs[1]=vec2(-1,0); offs[2]=vec2(0,1); offs[3]=vec2(0,-1);
+  offs[4]=vec2(1,1); offs[5]=vec2(-1,-1); offs[6]=vec2(1,-1); offs[7]=vec2(-1,1);
+  for(int i=0;i<8;i++){
+    vec2 uv = vUv + offs[i]*px;
+    vec4 n1 = texture2D(tN, uv), p1 = texture2D(tP, uv);
+    bool hit1 = p1.a > 0.5;
+    if(!hit0 && !hit1) continue;
+    float e = 0.0; float z; float x;
+    if(hit0 != hit1){ e = 1.0; z = hit0 ? zb(p0.xyz) : zb(p1.xyz); x = hit0 ? p0.x : p1.x; }
+    else {
+      float pl = abs(dot(p1.xyz - p0.xyz, n0.xyz));
+      e = smoothstep(foot*1.4+0.004, foot*3.0+0.012, pl);
+      e = max(e, 1.0 - smoothstep(0.72, 0.9, dot(n0.xyz, n1.xyz)));
+      if(abs(p0.a-p1.a) > 0.5) e = max(e, 0.9);
+      z = max(zb(p0.xyz), zb(p1.xyz)); x = p0.x;
+    }
+    // foliage keeps only its outline
+    if(hit0 && hit1 && cls0==5.0 && abs(p1.a-5.0)<.5) e *= 0.0;
+    float a = e * reveal(z, x) * weightZ(z);
+    if(i>3) a *= 0.3;
+    ink = max(ink, a);
+  }
+  /* heavy line: everything the cut plane touches gets a 2.5 px profile */
+  for(int i=0;i<4;i++){
+    vec2 uv = vUv + offs[i]*px*1.0;
+    vec4 n1 = texture2D(tN, uv), p1 = texture2D(tP, uv);
+    bool cut1 = isCut(n1,p1);
+    if(cut0 != cut1){
+      float x = cut0 ? p0.x : p1.x;
+      ink = max(ink, 0.8*reveal(0.0, x));
+    }
+  }
+  vec3 inkCol = mix(col, uInk, ink);
+  vec3 outc = inkCol;
+
+  if(uLitOn > 0.0){
+    /* view ray for this pixel */
+    vec4 fp = uInvVP*vec4(vUv*2.0-1.0, 1.0, 1.0); vec3 far = fp.xyz/fp.w;
+    vec3 rd = normalize(far - uCam);
+    float tHit = hit0 ? length(p0.xyz - uCam) : 400.0;
+
+    /* lit material on the passed side of the scan plane, ink still faintly on top */
+    if(hit0 && isLit(p0.xyz)){
+      vec3 lit = pow(max(texture2D(tLit, vUv).rgb, 0.0), vec3(1.0/2.2));
+      lit = lit/(1.0+0.12*lit);
+      /* contact shadow: screen-space ambient occlusion from the position buffer */
+      float R = clamp(0.45/foot, 3.0, 26.0), occ = 0.0, jj = hash3(vec3(gl_FragCoord.xy,1.7))*6.2831;
+      for(int k=0;k<10;k++){
+        float fk = float(k); float ang = jj + fk*2.39996; float rr = (fk+1.0)/10.0*R;
+        vec4 pp = texture2D(tP, vUv + vec2(cos(ang),sin(ang))*rr*px);
+        if(pp.a < 0.5) continue;
+        vec3 dv = pp.xyz - p0.xyz; float l = length(dv) + 1e-4;
+        occ += max(0.0, dot(n0.xyz, dv/l) - 0.12) * (1.0 - smoothstep(0.15, 0.7, l));
+      }
+      lit *= 1.0 - 0.75*clamp(occ/10.0*1.6, 0.0, 1.0);
+      outc = mix(lit, uInk, ink*uInkLit);
+    }
+
+    /* sunbeams: march the sunlit air between camera and surface */
+    if(uBeam > 0.001){
+      vec3 bmin = uHouseB > 0.5 ? vec3(9.0,0.4,-10.9) : vec3(5.0,0.3,-10.0), bmax = uHouseB > 0.5 ? vec3(29.5,3.5,4.2) : vec3(36.0,9.2,4.0);
+      vec3 inv = 1.0/rd; vec3 ta = (bmin-uCam)*inv, tb = (bmax-uCam)*inv;
+      vec3 t1v = min(ta,tb), t2v = max(ta,tb);
+      float tn = max(max(t1v.x,t1v.y),max(t1v.z,0.0)), tf = min(min(t2v.x,t2v.y),min(t2v.z,tHit));
+      if(tf > tn){
+        float acc = 0.0; const int STEPS = 40; float dt = (tf-tn)/float(STEPS);
+        float j = hash3(vec3(gl_FragCoord.xy, uTime));
+        for(int i=0;i<STEPS;i++){
+          vec3 q = uCam + rd*(tn + (float(i)+j)*dt);
+          float dn = density(q);
+          if(dn > 0.0 && isLit(q)) acc += dn*sunlit(q)*dt;
+        }
+        float glow = smoothstep(0.04, 0.95, 1.0 - exp(-acc*0.7));
+        outc = mix(outc, vec3(1.0,0.87,0.64), glow*0.68*uBeam*uBeamK) + vec3(0.12,0.07,0.0)*glow*uBeam*uBeamK;
+      }
+    }
+
+    /* the scan plane itself: a faint amber sheet with a 1 m grid, and a bright line where it meets the house */
+    if(uScanOn > 0.001){
+      float t = (uScanX - uCam.x)/rd.x;
+      if(t > 0.0 && t < tHit){
+        vec3 q = uCam + rd*t;
+        if(uSheet > 0.0 && q.y > -3.2 && q.y < 9.0 && q.z > -11.2 && q.z < uCutZ){
+          vec2 g = q.yz; vec2 w = max(fwidth(g), vec2(1e-4));
+          vec2 gl = abs(fract(g+0.5)-0.5)/w; float grid = 1.0 - min(1.0, min(gl.x, gl.y));
+          float border = 1.0 - smoothstep(0.0, 2.0, min(min(abs(q.y+3.2)/w.x, abs(q.y-10.5)/w.x), min(abs(q.z)/w.y, abs(q.z+14.0)/w.y)));
+          outc = mix(outc, uAmber, uScanOn*(0.07 + 0.22*grid + 0.6*border));
+        }
+      }
+      if(hit0){
+        float line = 1.0 - smoothstep(foot*1.0, foot*2.6, frontDist(p0.xyz));
+        outc = mix(outc, uAmber, line*uScanOn);
+      }
+    }
+  }
+  gl_FragColor = vec4(outc, 1.0);
+}`;
+const inkMat = new THREE.ShaderMaterial({
+  uniforms:{
+    tN:{value:rtN.texture}, tP:{value:rtP.texture},
+    uRes:{value:new THREE.Vector2(1,1)}, uPix:{value:1}, uRef, uDpr:{value:1},
+    uCutX:{value:-6}, uBehind:{value:0}, uTime:{value:0},
+    uInk:{value:new THREE.Color(COL.ink)}, uPaper:{value:new THREE.Color(COL.paper)}, uAmber:{value:new THREE.Color(COL.amber)},
+    tLit:{value:rtLit.texture}, tSun:{value:rtSun.texture}, uSunVP:{value:sunVP}, uSunView:{value:sunCam.matrixWorldInverse},
+    uInvVP:{value:new THREE.Matrix4()}, uCam:{value:new THREE.Vector3()}, uScanX:{value:SCAN0}, uCutZ:CUT.uCutZ, uCutY:CUT.uCutY, uPlanK:{value:0}, uSheet:{value:1}, uFlatDepth:{value:0}, uDepthScale:{value:15.5}, uInkLit:{value:.22}, uBeamK:{value:1}, uScanOn:{value:0}, uBeam:{value:0}, uLitOn:{value:0}, uRoomMode:{value:0}, uHouseB:{value:0},
+    uRR:{value:[0,1,2,3,4,5,6,7,8].map(()=>new THREE.Vector4())}, uRS:{value:[0,1,2,3,4,5,6,7,8].map(()=>new THREE.Vector4())}
+  },
+  vertexShader:`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy,0.0,1.0); }`,
+  fragmentShader:inkFrag, depthTest:false, depthWrite:false
+});
+inkMat.extensions = {derivatives:true};
+const post = new THREE.Scene(); const postCam = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+const tri = new THREE.BufferGeometry();
+tri.setAttribute('position', new THREE.Float32BufferAttribute([-1,-1,0, 3,-1,0, -1,3,0],3));
+tri.setAttribute('uv', new THREE.Float32BufferAttribute([0,0, 2,0, 0,2],2));
+const quad = new THREE.Mesh(tri, inkMat); quad.frustumCulled=false; post.add(quad);
+
+const camera = new THREE.PerspectiveCamera(FOV0, 1, 1, 2);
+
+/* ================================================================
+   5. NOTES — CAD annotation projected from the cut plane every frame
+================================================================ */
+const svg = $('#notes');
+const gGrid = el('g',{},svg), gLvl = el('g',{},svg), gDim = el('g',{},svg), gRoom = el('g',{},svg), gSun = el('g',{},svg), gOri = el('g',{},svg);
+const items = [];
+let ITEMS = items;
+const V3 = (x,y,z=CZ)=>new THREE.Vector3(x,y,z);
+// timings in seconds after the draw begins
+const T = { cut:[0.15,1.55], behind:[1.25,3.05], grid:[2.7,3.5], lvl:[3.0,3.8], dim:[3.2,4.0], room:[3.5,4.6], sun:[4.1,5.4] };
+
+function noteLine(a,b,t,parent,cls){ ITEMS.push({k:'line',a,b,t,e:el('line',{class:cls},parent)}); }
+function notePath(pts,t,parent,cls){ ITEMS.push({k:'path',pts,t,e:el('path',{class:cls},parent)}); }
+function noteText(at,txt,t,parent,cls,dx=0,dy=0,anchor){ const e=el('text',{class:cls},parent); if(anchor) e.setAttribute('text-anchor',anchor); ITEMS.push({k:'text',at,txt,t,dx,dy,e}); }
+function noteBubble(at,lbl,t,parent){ const c=el('circle',{class:'n-bub',r:10},parent); const tx=el('text',{class:'n-bubt'},parent); tx.textContent=lbl; ITEMS.push({k:'bub',at,t,c,tx}); }
+function noteLevel(at,txt,t,parent,side){ const g=el('g',{},parent); const p=el('path',{class:'n-lvl'},g); const tx=el('text',{class:'n-small'},g); tx.textContent=txt; ITEMS.push({k:'lvl',at,t,p,tx,side}); }
+function noteTick(at,t,parent){ ITEMS.push({k:'tick',at,t,e:el('line',{class:'n-tick'},parent)}); }
+function noteSun(at,t,parent){ const g=el('g',{},parent); const c=el('circle',{class:'n-sunsym',r:6},g); const rays=[]; for(let i=0;i<8;i++) rays.push(el('line',{class:'n-sunsym'},g)); ITEMS.push({k:'sunsym',at,t,c,rays,g}); }
+
+// grid (drawing metres + 9 = world x)
+const SX = x => x + 9;
+const AXL = [-5.6, .9, 3.2, 6.7, 11.3, 14.0, 19.7, 28.3, 30.2], AX = AXL.map(SX);
+AX.forEach((x,i)=>{ const d=i*0.05;
+  noteLine(V3(x,9.7),V3(x,-3.9),[T.grid[0]+d,T.grid[1]+d],gGrid,'n-grid');
+  noteBubble(V3(x,10.3),String(i+1),[T.grid[0]+d,T.grid[1]+d],gGrid);
+});
+// levels: single storey on the street side, the upper floor beyond on the right
+[[0,'±0.00 NGL'],[FFL,'+0.45 FFL'],[3.75,'+3.75 ROOF']].forEach(([y,t],i)=>noteLevel(V3(SX(-8.2),y),t,[T.lvl[0]+i*.07,T.lvl[1]+i*.07],gLvl,'L'));
+[[-1.45,'−1.45 POOL'],[3.75,'+3.75 UPPER FFL'],[7.05,'+7.05 ROOF']].forEach(([y,t],i)=>noteLevel(V3(SX(32.6),y),t,[T.lvl[0]+i*.07,T.lvl[1]+i*.07],gLvl,'R'));
+// dimension chain + overall
+noteLine(V3(AX[0],-4.6),V3(AX[AX.length-1],-4.6),T.dim,gDim,'n-thin');
+noteLine(V3(AX[0],-5.5),V3(AX[AX.length-1],-5.5),T.dim,gDim,'n-thin');
+AX.forEach(x=>noteTick(V3(x,-4.6),T.dim,gDim));
+noteTick(V3(AX[0],-5.5),T.dim,gDim); noteTick(V3(AX[AX.length-1],-5.5),T.dim,gDim);
+for(let i=0;i<AXL.length-1;i++){ const a=AXL[i], b=AXL[i+1]; noteText(V3(SX((a+b)/2),-4.6),(b-a).toFixed(2),[T.dim[0]+.2,T.dim[1]],gDim,'n-dim',0,-5); }
+noteText(V3(SX(12.3),-5.5),'35.80',[T.dim[0]+.3,T.dim[1]],gDim,'n-dim',0,-5);
+// room tags
+[['CARPORT','OPEN',-2.4,1.1],['LAUNDRY','10 m²',2.05,2.3],['PANTRY','',4.95,2.3],['KITCHEN','37 m²',9.0,2.5],
+ ['TERRACE','COVERED',12.65,2.5],['DECK','+0.30',16.8,1.1],['POOL','25 m²·−1.45',24.0,-.55],['WC','',29.2,2.3],['UPPER FLOOR','BEYOND',17.0,5.35]]
+ .forEach(([n,s,x,y],i)=>{ const t=[T.room[0]+i*.06,T.room[1]+i*.06]; noteText(V3(SX(x),y),n,t,gRoom,'n-room',0,0); if(s) noteText(V3(SX(x),y),s,t,gRoom,'n-roomsub',0,13); });
+// sun lines — profile angles in this section plane (its north is 35° off the sheet)
+const tanD=Math.tan(47.6*Math.PI/180), tanM=Math.tan(69.3*Math.PI/180), tanJ=Math.tan(52.4*Math.PI/180);
+const dec=[V3(SX(14.05-(8.0-3.75)/tanD),8.0),V3(SX(14.05),3.75),V3(SX(14.05+(3.75-.45)/tanD),.45)];
+const mar=[V3(SX(11.4-(8.4-3.75)/tanM),8.4),V3(SX(11.4),3.75),V3(SX(11.4+(3.75-.45)/tanM),.45)];
+const jun=[V3(SX(24.0-(8.6-.12)/tanJ),8.6),V3(SX(24.0-(4.0-.12)/tanJ),4.0),V3(SX(24.0),.12)];
+[[dec,'21 DEC · 12:00 · 47.6°',0,-14,4,'end'],[mar,'21 MAR · 12:00 · 69.3°',.25,14,-8,'start'],[jun,'21 JUN · 17:00 · 52.4°',.5,14,-6,'start']].forEach(([pts,lbl,d,dx,dy,an])=>{
+  const t=[T.sun[0]+d,T.sun[1]+d]; notePath(pts,t,gSun,'n-sun'); noteSun(pts[0],t,gSun);
+  noteText(pts[0],lbl,[t[0]+.3,t[1]+.2],gSun,'n-sunt',dx,dy,an);
+});
+noteText(V3(SX(-8.2),-2.4),'STREET',T.dim,gOri,'n-orient',0,0,'end');
+noteText(V3(SX(32.6),-2.4),'LOOKING NORTH',T.dim,gOri,'n-orient',0,0,'start');
+
+const _v=new THREE.Vector3(); let W=1,H=1;
+function proj(p){ _v.copy(p).project(camera); return [(_v.x*.5+.5)*W, (-_v.y*.5+.5)*H]; }
+function noteWPoly(pts,t,parent,cls,closed=false){ ITEMS.push({k:'wpoly',pts,t,closed,e:el('path',{class:cls},parent)}); }
+function updateNotes(tDraw, list=items){
+  for(const it of list){
+    const k = clamp((tDraw-it.t[0])/(it.t[1]-it.t[0]));
+    const ek = ease(k);
+    if(it.k==='line'){
+      const a=proj(it.a), b=proj(it.b);
+      it.e.setAttribute('x1',a[0]); it.e.setAttribute('y1',a[1]);
+      it.e.setAttribute('x2',lerp(a[0],b[0],ek)); it.e.setAttribute('y2',lerp(a[1],b[1],ek));
+      it.e.setAttribute('opacity', k>0?1:0);
+    } else if(it.k==='wpoly'){
+      const s2=it.pts.map(proj); const n=Math.max(2,Math.round(s2.length*ek));
+      let d='M'+s2[0][0]+' '+s2[0][1]; for(let i=1;i<n;i++) d+=' L'+s2[i][0]+' '+s2[i][1]; if(it.closed && ek>=1) d+=' Z';
+      it.e.setAttribute('d',d); it.e.setAttribute('opacity',k>0?1:0);
+    } else if(it.k==='path'){
+      const s=it.pts.map(proj); let L=0; const seg=[]; for(let i=1;i<s.length;i++){ const l=Math.hypot(s[i][0]-s[i-1][0],s[i][1]-s[i-1][1]); seg.push(l); L+=l; }
+      let rem=L*ek, d=`M${s[0][0]} ${s[0][1]}`;
+      for(let i=1;i<s.length && rem>0;i++){ const f=Math.min(1,rem/seg[i-1]); d+=` L${lerp(s[i-1][0],s[i][0],f)} ${lerp(s[i-1][1],s[i][1],f)}`; rem-=seg[i-1]; }
+      it.e.setAttribute('d',d); it.e.setAttribute('opacity',k>0?1:0);
+    } else if(it.k==='text'){
+      const a=proj(it.at); it.e.setAttribute('x',a[0]+it.dx); it.e.setAttribute('y',a[1]+it.dy);
+      const n=Math.round(it.txt.length*k); const s=it.txt.slice(0,n);
+      if(it.e.textContent!==s) it.e.textContent=s;
+    } else if(it.k==='bub'){
+      const a=proj(it.at); it.c.setAttribute('cx',a[0]); it.c.setAttribute('cy',a[1]); it.c.setAttribute('r',10*ek);
+      it.tx.setAttribute('x',a[0]); it.tx.setAttribute('y',a[1]); it.tx.setAttribute('opacity',k>.6?1:0);
+      it.c.setAttribute('opacity',k>0?1:0);
+    } else if(it.k==='lvl'){
+      const a=proj(it.at), s=it.side==='L'?-1:1, len=70*ek;
+      it.p.setAttribute('d',`M${a[0]} ${a[1]} l-5 -8 l10 0 z M${a[0]} ${a[1]} l${s*len} 0`);
+      it.p.setAttribute('opacity',k>0?1:0);
+      it.tx.setAttribute('x',a[0]+s*(len>0?len:0)+(s<0?0:0)); it.tx.setAttribute('y',a[1]-4);
+      it.tx.setAttribute('text-anchor',s<0?'start':'end'); it.tx.setAttribute('x',a[0]+s*len*(1)+(s<0?0:0));
+      it.tx.setAttribute('opacity',k>.7?1:0);
+      if(s<0){ it.tx.setAttribute('x',a[0]-len); } else { it.tx.setAttribute('x',a[0]+len); }
+    } else if(it.k==='tick'){
+      const a=proj(it.at); it.e.setAttribute('x1',a[0]-4); it.e.setAttribute('y1',a[1]+4); it.e.setAttribute('x2',a[0]+4); it.e.setAttribute('y2',a[1]-4);
+      it.e.setAttribute('opacity',k>0?1:0);
+    } else if(it.k==='sunsym'){
+      const a=proj(it.at); it.c.setAttribute('cx',a[0]); it.c.setAttribute('cy',a[1]); it.c.setAttribute('r',6*ek);
+      it.rays.forEach((r,i)=>{ const an=i/8*Math.PI*2, r0=8, r1=8+4*ek; r.setAttribute('x1',a[0]+Math.cos(an)*r0); r.setAttribute('y1',a[1]+Math.sin(an)*r0); r.setAttribute('x2',a[0]+Math.cos(an)*r1); r.setAttribute('y2',a[1]+Math.sin(an)*r1); });
+      it.g.setAttribute('opacity',k>0?1:0);
+    }
+  }
+}
+
+/* ================================================================
+   5b. PLAN NOTES — the ground-floor sheet, projected from the cut plane y = +1.65
+================================================================ */
+const YP = FFL + 1.2;                            // plan cut: 1.2 m above the ground floor
+const psvg = $('#pnotes');
+const planItems = []; ITEMS = planItems;
+const pG = el('g',{},psvg), pD = el('g',{},psvg), pR = el('g',{},psvg), pM = el('g',{},psvg);
+const VP = (x,z)=>new THREE.Vector3(x,YP,z);
+const PT = { grid:[10.5,13], dim:[12,15], room:[13,17], mark:[15,19] };   // drawn at td × 3.9 after the loader
+const VB = (x,z)=>VP(x+HB.OX, z+HB.OZ);           // drawing metres → world
+const BX = [0,4.45,6.7,11.3,12.6,15.9,20.4,24.5,28.3], BZ = [0,1.65,5.6,6.8,14.85];
+BX.forEach((x,i)=>{ const d=i*.25; noteLine(VB(x,-1.8),VB(x,17.4),[PT.grid[0]+d,PT.grid[1]+d],pG,'n-grid'); noteBubble(VB(x,-2.7),String(i+1),[PT.grid[0]+d,PT.grid[1]+d],pG); });
+BZ.forEach((z,i)=>{ const d=i*.3, l='ABCDE'[i]; noteLine(VB(-11.4,z),VB(31.2,z),[PT.grid[0]+d,PT.grid[1]+d],pG,'n-grid'); noteBubble(VB(-12.3,z),l,[PT.grid[0]+d,PT.grid[1]+d],pG); });
+noteLine(VB(0,17.6),VB(28.3,17.6),PT.dim,pD,'n-thin'); noteLine(VB(-6,18.8),VB(30.2,18.8),PT.dim,pD,'n-thin');
+BX.forEach(x=>noteTick(VB(x,17.6),PT.dim,pD)); noteTick(VB(-6,18.8),PT.dim,pD); noteTick(VB(30.2,18.8),PT.dim,pD);
+for(let i=0;i<BX.length-1;i++){ const a=BX[i], b=BX[i+1]; noteText(VB((a+b)/2,17.6),(b-a).toFixed(2),PT.dim,pD,'n-dim',0,-5); }
+noteText(VB(12.1,18.8),'36.20 · PLOT',PT.dim,pD,'n-dim',0,-5);
+const BZD=[0,1.65,5.6,6.8,14.85,16.2];
+noteLine(VB(-10.4,0),VB(-10.4,16.2),PT.dim,pD,'n-thin'); BZD.forEach(z=>noteTick(VB(-10.4,z),PT.dim,pD));
+for(let i=0;i<BZD.length-1;i++) noteText(VB(-10.4,(BZD[i]+BZD[i+1])/2),(BZD[i+1]-BZD[i]).toFixed(2),PT.dim,pD,'n-dim',-12,4,'end');
+[['CARPORT','37 m² · ±0.00',-2.4,12.7],['LIVING','15 m² · +0.45',2.25,2.95],['WC','',4.5,1.05],['COURT GARDEN','25 m² · OPEN',7.95,.95],
+ ['GALLERY','+0.45',6.2,6.3],['STAIR','',10.7,4.7],['DINING','',9.0,7.6],['KITCHEN','37 m² · +0.45',9.0,13.95],['PANTRY','',4.9,13.15],
+ ['LAUNDRY','10 m²',2.1,12.7],['TERRACE','COVERED',12.65,9.6],['WALK-IN','14 m²',14.3,3.3],['MASTER BED','23 m² · +0.45',18.1,3.55],
+ ['TERRACE','+0.30',21.75,.8],['JACUZZI','',24.1,3.2],['BATH','9 m²',22.2,6.15],['POOL','25 m² · −1.45',24.0,11.55],['PLANT','',29.2,9.45],['WC','',29.2,12.6]]
+ .forEach(([n,sub,x,z],i)=>{ const t=[PT.room[0]+i*.18,PT.room[1]+i*.18]; noteText(VB(x,z),n,t,pR,'n-room',0,0); if(sub) noteText(VB(x,z),sub,t,pR,'n-roomsub',0,13); });
+// the street edge (the plot's curved front) and the walk route
+{ const a=[]; for(let i=0;i<=24;i++){ const t=i/24; a.push(VB(-5.6 - 3.3*Math.sin(t*Math.PI*.5)**1.4, t*16.2)); } noteWPoly(a,PT.mark,pM,'n-thin'); }
+noteText(VB(-8.2,4.2),'STREET',PT.mark,pM,'n-orient',0,0,'middle');
+// section line A–A: the next sheet is cut here, looking north
+noteLine(VB(-11.4,12.3),VB(-7.6,12.3),PT.mark,pM,'n-sec'); noteLine(VB(30.8,12.3),VB(33.0,12.3),PT.mark,pM,'n-sec');
+for(const x of [-11.4,33.0]){ noteWPoly([VB(x-.5,12.3),VB(x,10.9),VB(x+.5,12.3)],PT.mark,pM,'n-secA',true); noteText(VB(x,12.3),x<0?'A':'A′',PT.mark,pM,'n-axt',0,16); }
+noteWPoly([VB(-2.5,7.5),VB(.7,6.1),VB(.95,4.45),VB(3.8,4.4),VB(5.1,4.6),VB(5.3,6.15),VB(8.5,6.2),VB(9.15,7.0),VB(10.6,9.3),VB(12.75,8.9),VB(13.2,10.0),VB(14.4,10.95),VB(17.3,8.35),VB(24.8,8.3),VB(25.8,6.0),VB(25.4,5.0),VB(24.2,.75),VB(21.6,1.7),VB(21.0,4.05),VB(19.5,4.15)],PT.mark,pM,'n-axis');
+noteText(VB(-2.6,7.5),'IN',PT.mark,pM,'n-axt',-6,4,'end');
+// tree canopies above the cut
+const circ=(cx,cz,r)=>{ const a=[]; for(let i=0;i<=40;i++){ const t=i/40*Math.PI*2; a.push(VB(cx+Math.cos(t)*r, cz+Math.sin(t)*r)); } return a; };
+[[-4.3,2.6,2.3],[.6,8.3,2.1],[16.4,6.0,1.8],[22.0,15.4,2.0],[27.6,4.0,2.0],[27.9,1.3,1.5]].forEach(([x,z,r])=>noteWPoly(circ(x,z,r),PT.mark,pM,'n-can'));
+// north arrow: this drawing's north points up and to the right
+{ const cx=33.6, cz=14.0, a=35*Math.PI/180, ux=Math.cos(a), uz=-Math.sin(a), px=-uz, pz=ux;
+  noteWPoly(circ(cx,cz,1.25),PT.mark,pM,'n-north');
+  noteWPoly([VB(cx-ux*1.05,cz-uz*1.05),VB(cx+ux*1.05,cz+uz*1.05),VB(cx+ux*.35+px*.45,cz+uz*.35+pz*.45),VB(cx+ux*1.05,cz+uz*1.05),VB(cx+ux*.35-px*.45,cz+uz*.35-pz*.45)],PT.mark,pM,'n-north');
+  noteText(VB(cx+ux*1.9,cz+uz*1.9),'N',PT.mark,pM,'n-axt',0,4,'middle'); }
+ITEMS = items;
+
+/* ================================================================
+   6. LIVE SECTION (mini map)
+================================================================ */
+const msvg = $('#msvg');
+const MX = x => 8 + (x+4)*(220/50), MY = y => 86 - (y+3)*(70/16);
+(function buildMini(){
+  const pl=(pts,a)=>el('polyline',Object.assign({points:pts.map(([x,y])=>MX(SX(x))+','+MY(y)).join(' '),fill:'none',stroke:'#1d1c19','stroke-width':1},a||{}),msvg);
+  el('polygon',{points:[[-9,0],[19.6,0],[19.6,-1.45],[28.2,-1.45],[28.2,0],[32,0],[32,-3],[-9,-3]].map(([x,y])=>MX(SX(x))+','+MY(y)).join(' '),fill:'#1d1c19','fill-opacity':.12,stroke:'none'},msvg);
+  pl([[-9,0],[19.6,0],[19.6,-1.45],[28.2,-1.45],[28.2,0],[32,0]]);
+  pl([[.9,0],[.9,3.75],[11.4,3.75],[11.4,FFL]]); pl([[3.2,FFL],[3.2,3.45]]); pl([[6.7,FFL],[6.7,3.45]]);
+  pl([[11.3,3.75],[14.05,3.75],[14.05,FFL]]); pl([[28.2,0],[28.2,3.75],[30.2,3.75],[30.2,0]]);
+  pl([[9.5,3.75],[9.5,7.05],[24.7,7.05],[24.7,3.75]],{'stroke-dasharray':'2 2'});
+  pl([[-5.6,2.9],[.9,2.9]],{'stroke-dasharray':'2 2'});
+})();
+const msvg2 = $('#msvg2');
+const PX = x => 8 + (x+4)*(220/48), PZ = z => 6 + (z+14)*(92/22);
+(function buildMiniPlan(){
+  const r=(x0,x1,z0,z1,a)=>el('rect',Object.assign({x:PX(x0+HB.OX),y:PZ(z0+HB.OZ),width:PX(x1)-PX(x0),height:PZ(z1)-PZ(z0),fill:'none',stroke:'#1d1c19','stroke-width':1},a||{}),msvg2);
+  r(-6,30.2,0,16.2);
+  [[0,4.45,1.65,5.6],[4.45,11.3,5.6,6.8],[6.7,11.3,6.8,14.95],[1,6.7,10.3,14.95],[9.6,24.6,0,5.1],[19.6,24.5,5.1,6.9],[28.2,30,8.1,14.7]].forEach(b=>r(...b,{fill:'#1d1c19','fill-opacity':.1}));
+  r(5.7,10.1,0,5.6,{'stroke-dasharray':'2 2'}); r(19.8,28,9.9,13,{'stroke-dasharray':'2 2'}); r(-5.6,.9,9.9,15.6,{'stroke-dasharray':'2 2'});
+  el('line',{x1:PX(-8+HB.OX),y1:PZ(12.3+HB.OZ),x2:PX(32+HB.OX),y2:PZ(12.3+HB.OZ),stroke:'#e85d04','stroke-width':.7,'stroke-dasharray':'6 2 1 2'},msvg2);
+  el('polyline',{points:[[-2.5,7.5],[.7,6.1],[.95,4.45],[3.8,4.4],[5.1,4.6],[5.3,6.15],[8.5,6.2],[9.15,7.0],[10.6,9.3],[12.75,8.9],[13.2,10.0],[14.4,10.95],[17.3,8.35],[24.8,8.3],[25.8,6.0],[25.4,5.0],[24.2,.75],[21.6,1.7],[21.0,4.05],[19.5,4.15]].map(([x,z])=>PX(x+HB.OX)+','+PZ(z+HB.OZ)).join(' '),fill:'none',stroke:'#e85d04','stroke-width':.8,'stroke-dasharray':'2 3'},msvg2);
+})();
+const m2Cone = el('path',{fill:'#e85d04','fill-opacity':.16,stroke:'#e85d04','stroke-width':.8},msvg2);
+const m2Cam = el('g',{},msvg2); el('circle',{r:4,fill:'#f2efe7',stroke:'#e85d04','stroke-width':1.2},m2Cam);
+const m2Down = el('circle',{r:1.4,fill:'#e85d04'},m2Cam);
+const mScan = el('line',{y1:MY(-3),y2:MY(10.5),stroke:'#e85d04','stroke-width':1.4,opacity:0},msvg);
+const mCone = el('path',{fill:'#e85d04','fill-opacity':.16,stroke:'#e85d04','stroke-width':.8},msvg);
+const mCam = el('g',{},msvg);
+el('circle',{r:4.5,fill:'#f2efe7',stroke:'#e85d04','stroke-width':1.2},mCam);
+const mX1 = el('path',{d:'M-3 -3 L3 3 M3 -3 L-3 3',stroke:'#e85d04','stroke-width':1.2},mCam);
+
+/* ================================================================
+   7. CAMERA RIG — dolly zoom, then 3/4 orbit, all from one progress value
+================================================================ */
+const t0 = Math.tan(FOV0*Math.PI/360), t1 = Math.tan(FOV1*Math.PI/360);
+let K = 14;                       // half-height of the frame at the cut plane (m)
+function fitK(){
+  // fit the sheet (grid bubbles to dimension text, level tags both sides) between the HUD bands
+  const narrow = W < 820, side = narrow ? 70 : 170, band = narrow ? 240 : 330;
+  const pxm = Math.min((W*0.94 - side)/47.2, (H - band)/16.4);
+  K = H/(2*Math.max(pxm, 1));
+}
+const cam = { up:new THREE.Vector3(0,1,0), Kv:14, pos:new THREE.Vector3(), look:new THREE.Vector3(), fov:FOV0, dist:0, f:0, s:0, u:0, w:0, scan:SCAN0, walk:0, room:null, roomA:0 };
+function baseRig(p){
+  cam.up.set(0,1,0);
+  const s = ease(range(p, STAGE.lens0, STAGE.lens1));
+  const sl = 1 - Math.pow(1 - s, 2.4);
+  const t = Math.exp(lerp(Math.log(t0), Math.log(t1), sl));
+  const d = K/t;
+  const fov = 2*Math.atan(t)*180/Math.PI;
+  const u = ease(range(p, STAGE.turn0, STAGE.turn1));
+  const w = ease(range(p, STAGE.sweep0, STAGE.sweep1));
+  // orbit about the pivot inside the house
+  const v0 = new THREE.Vector3(TARGET.x-PIVOT.x, TARGET.y-PIVOT.y, TARGET.z+d-PIVOT.z);
+  const r = v0.length()*lerp(1,1.16,u)*lerp(1,0.97,w);
+  const e0 = Math.asin(v0.y/v0.length());
+  const el_ = e0 + (u*15 - w*3)*Math.PI/180, az = -(u*30 + w*6)*Math.PI/180;
+  cam.pos.set(PIVOT.x + r*Math.cos(el_)*Math.sin(az), PIVOT.y + r*Math.sin(el_), PIVOT.z + r*Math.cos(el_)*Math.cos(az));
+  cam.look.copy(TARGET).lerp(new THREE.Vector3(PIVOT.x+1.5+1.5*w, 2.0+0.4*w, PIVOT.z), u);
+  cam.w = w; cam.scan = lerp(SCAN0, SCAN1, range(p, STAGE.sweep0, STAGE.sweep1));
+  cam.fov = fov; cam.dist = d; cam.f = 12/t; cam.s = s; cam.u = u;
+  cam.walk = 0; cam.room = null; cam.roomA = 0; cam.ret = 0;
+  if(p > STAGE.walk0) walkRig(range(p, STAGE.walk0, STAGE.walk1));
+}
+
+/* ---- THE RETURN: back out through the cut, then the same rig played backwards:
+   scan runs back (material → ink), the turn unwinds, the lens closes to 0.12°. */
+let vprog = 0, retOut = 0;
+const _S = {pos:new THREE.Vector3(), look:new THREE.Vector3()}, _G = {pos:new THREE.Vector3(), look:new THREE.Vector3(), fov:66};
+function rig(p){
+  retOut = 0;
+  if(p <= STAGE.walk1){ vprog = p; baseRig(p); return; }
+  if(p < STAGE.out1){
+    baseRig(STAGE.sweep1); _S.pos.copy(cam.pos); _S.look.copy(cam.look);
+    baseRig(STAGE.walk1);  _G.pos.copy(cam.pos); _G.look.copy(cam.look); _G.fov = cam.fov;
+    const t = ease(range(p, STAGE.walk1, STAGE.out1));
+    const pc = new THREE.CatmullRomCurve3([_G.pos.clone(), new THREE.Vector3(28.0,2.6,CZ+2.5), new THREE.Vector3(27,6.5,CZ+9), _S.pos.clone()], false, 'centripetal');
+    const lc = new THREE.CatmullRomCurve3([_G.look.clone(), new THREE.Vector3(29,1.0,-3), new THREE.Vector3(22,2.5,-3), _S.look.clone()], false, 'centripetal');
+    pc.getPoint(t, cam.pos); lc.getPoint(t, cam.look);
+    cam.fov = lerp(_G.fov, 60, t); cam.f = 12/Math.tan(cam.fov*Math.PI/360);
+    cam.room = null; cam.roomA = 0; cam.walk = 0; cam.dist = cam.pos.z; cam.ret = 1;
+    vprog = STAGE.sweep1; retOut = t; return;
+  }
+  // scan back, then unwind turn + close lens (piecewise-linear remap into the forward rig)
+  let vp;
+  if(p < STAGE.scan1) vp = lerp(STAGE.sweep1, STAGE.sweep0, range(p, STAGE.out1, STAGE.scan1));
+  else vp = lerp(STAGE.sweep0, STAGE.lens0 - 0.02, range(p, STAGE.scan1, STAGE.end));
+  vprog = vp; baseRig(vp); cam.ret = 1; retOut = 1;
+}
+
+/* ---- THE WALK: one centripetal Catmull-Rom path, in through the cut at eye height.
+   Where a wall or full-height glass stands between rooms, the path steps out just in
+   front of the cut plane (z ≈ +1) and back in, so the camera never passes through a solid. */
+const EYE = FFL + 1.6, EYE1 = FF + 1.6, EYEG = -1.5 + 1.6;
+const ROOMS = {
+  s_dining:  {code:'07', name:'Dining & Kitchen', meta:['37 m²','+0.45','4.60 × 8.05'], note:'The cut runs through the kitchen island. Beyond it, the table for six and the folding doors to the gallery.'},
+  s_gallery: {code:'08', name:'Gallery',          meta:['+0.45','1.20 wide','glass both sides'], note:'A glass corridor wrapped around the court garden. The trees stand open to the sky.'},
+  s_living:  {code:'02', name:'Living',           meta:['15 m²','+0.45','4.45 × 3.30'], note:'The front door opens straight into this room. The tree court sits behind its back wall.'},
+  s_terrace: {code:'09', name:'Covered terrace',  meta:['22 m²','+0.45','2.70 × 8.10'], note:'An outdoor room behind the brick screen, under the same roof line as the kitchen.'},
+  s_pool:    {code:'15', name:'Pool',             meta:['25 m²','−1.45','8.20 × 3.10'], note:'The section cuts the pool lengthwise: 1.45 m of water below the deck, the plant room and WC at the far end.'},
+  living:  {code:'02', name:'Living',           meta:['98 m²','+0.45','7.00 × 14.00'], note:'Winter sun reaches this floor through the clerestory; summer sun stays on the overhang.'},
+  study:   {code:'04', name:'Study',            meta:['49 m²','+0.45','3.50 × 14.00'], note:'North glass to the courtyard. On 21 June at 17:00 the sun clears the bedroom parapet and lands here.'},
+  kitchen: {code:'06', name:'Kitchen & Dining', meta:['98 m²','+0.45','7.00 × 14.00'], note:'Island, table for six, stair to the bedroom along the back wall.'},
+  snug:    {code:'07', name:'Snug',             meta:['56 m²','+0.45','4.00 × 14.00'], note:'Low room facing the sunken garden through the north glass.'},
+  bedroom: {code:'09', name:'Bedroom',          meta:['94 m²','+4.45','7.50 × 12.50'],  note:'Opens north onto the balcony over the lower garden.'},
+  garden:  {code:'10', name:'Lower Garden',     meta:['81 m²','−1.50','4.50 × 18.00'], note:'Sunk 1.5 m below the street. Cool air pools here in the evening.'},
+};
+const WS = (x,y,z)=>[x+9, y, z-10.85];
+const WALKNODES = [
+  {pos:WS(8.6,2.5,14.0),   look:WS(9.0,1.6,9.0),   w:1.5},
+  {pos:WS(9.0,EYE,11.4),   look:WS(8.8,1.2,7.6),   w:0.9, hold:0.8, room:'s_dining'},
+  {pos:WS(9.15,EYE,7.3),   look:WS(9.15,1.7,4.0),  w:0.7},
+  {pos:WS(8.6,EYE,6.2),    look:WS(7.4,1.3,2.4),   w:0.5, hold:0.8, room:'s_gallery'},
+  {pos:WS(8.9,EYE,6.4),    look:WS(9.6,1.6,9.6),   w:0.6},
+  {pos:WS(10.6,EYE,9.3),   look:WS(13.5,1.5,9.8),  w:0.9},
+  {pos:WS(11.7,EYE,10.4),  look:WS(12.8,1.3,11.6), w:0.5},
+  {pos:WS(12.6,EYE,11.85), look:WS(12.6,.9,7.6),   w:0.5, hold:0.8, room:'s_terrace'},
+  {pos:WS(13.5,EYE,11.2),  look:WS(17,1.4,11.0),   w:0.5},
+  {pos:WS(14.5,EYE,10.95), look:WS(20,1.0,11.4),   w:0.5},
+  {pos:WS(17.3,EYE,9.0),   look:WS(27.5,.2,11.2),  w:0.8, hold:1.0, room:'s_pool'},
+];
+let wk = null;
+function buildWalk(){
+  const pts = [cam.pos.clone(), ...WALKNODES.map(n=>new THREE.Vector3(...n.pos))];
+  const lks = [cam.look.clone(), ...WALKNODES.map(n=>new THREE.Vector3(...n.look))];
+  const nodes = [{hold:0}, ...WALKNODES];
+  const n = pts.length, phases = [];
+  let a = 0, w = 0;
+  for(let i=1;i<n;i++){
+    w += nodes[i].w;
+    if(nodes[i].hold || i===n-1){ phases.push({k:'move', a, b:i, d:w}); phases.push({k:'hold', a:i, d:nodes[i].hold||0, room:nodes[i].room}); a = i; w = 0; }
+  }
+  const total = phases.reduce((s,p)=>s+p.d,0);
+  wk = { key: cam.pos.x.toFixed(3)+cam.pos.y.toFixed(3)+cam.pos.z.toFixed(3), n, phases, total,
+    pc: new THREE.CatmullRomCurve3(pts,false,'centripetal'), lc: new THREE.CatmullRomCurve3(lks,false,'centripetal') };
+}
+function walkRig(v){
+  const key = cam.pos.x.toFixed(3)+cam.pos.y.toFixed(3)+cam.pos.z.toFixed(3);
+  if(!wk || wk.key !== key) buildWalk();
+  let t = v*wk.total, idx = 0, room = null, roomA = 0, drift = 0;
+  for(let i=0;i<wk.phases.length;i++){
+    const ph = wk.phases[i];
+    if(t <= ph.d || i===wk.phases.length-1){
+      const l = clamp(t/Math.max(ph.d,1e-6));
+      if(ph.k==='move'){
+        idx = ph.a + (ph.b-ph.a)*ease(l);
+        const next = wk.phases[i+1], prev = wk.phases[i-1];
+        if(next && next.room && l>0.72){ room = next.room; roomA = range(l,0.72,1); }
+        if(prev && prev.room && l<0.22){ room = prev.room; roomA = 1-range(l,0,0.22); }
+      } else { idx = ph.a; room = ph.room; roomA = 1; drift = l; }
+      break;
+    }
+    t -= ph.d;
+  }
+  const u = idx/(wk.n-1);
+  wk.pc.getPoint(u, cam.pos); wk.lc.getPoint(u, cam.look);
+  if(drift){ const d = new THREE.Vector3().subVectors(cam.look, cam.pos).normalize(); cam.pos.addScaledVector(d, 0.35*ease(drift)); }
+  cam.walk = v; cam.room = room; cam.roomA = roomA;
+  cam.fov = lerp(60, 66, ease(range(v,0,0.12)));
+  cam.f = 12/Math.tan(cam.fov*Math.PI/360);
+  cam.dist = cam.pos.z;
+}
+
+/* ---- CHAPTER 2 · THE PLAN ------------------------------------------------
+   q ∈ [0,1]: swing section → plan at 13 km, the sheet, walls rise under a dolly
+   zoom, descend to the front door, then walk the enfilade with the materials
+   sweeping into each room as the camera crosses its threshold. */
+const Q = { swing:[0,.12], sheet:[.12,.17], rise:[.17,.27], down:[.27,.4], walk:[.4,1] };
+const TP = new THREE.Vector3(19.8, YP, -2.6);
+let KP = 20;                                    // half-height of the plan frame on the cut plane
+function fitKP(){ const pxm = Math.min((W*0.9 - 60)/47.5, (H - 300)/22.5); KP = H/(2*Math.max(pxm,1)); }
+const c2 = { cutZ:100, cutY:100, planK:0, reveal:-6, revealOn:0, stage:'', room:null, roomA:0, notesK:1, erase:0, rooms:[0,0,0,0,0,0,0,0,0] };
+const RISEY = 3.3;                                // walls rise to just under the ceilings
+/* room sweeps for house B, world rects [x0,z0,x1,z1] and sweep [axis 0=x 1=z, dir] */
+const BROOMS = [
+  {r:[-3, -12.85, 9, 7.15],     a:0, d: 1},    // street side, path and front garden
+  {r:[9, -9.3, 13.45, -5.25],    a:1, d:-1},    // living, from the front door inward
+  {r:[13.45,-11.05,20.3,-4.05],  a:0, d: 1},    // galleries and the court garden
+  {r:[15.6, -4.15, 20.4, 4.1],   a:1, d: 1},    // dining and kitchen, from the folding doors
+  {r:[13.45,-4.05, 15.6, 1.15],  a:1, d: 1},    // garden strip beside the dining room
+  {r:[20.3, -4.1, 23.1, 4.2],    a:0, d: 1},    // covered terrace, from the dining doors
+  {r:[23.1, -3.95, 39.2, 5.4],   a:0, d: 1},    // pool deck and gardens, from the lattice
+  {r:[29.45,-11.05, 39.2, -3.95],a:0, d:-1},    // terrace, jacuzzi, east garden, from the garden side
+  {r:[21.6, -11.05, 29.4, -5.75],a:0, d:-1},    // master bedroom and walk-in, from the terrace doors
+];
+const UPY = new THREE.Vector3(0,1,0), UPZ = new THREE.Vector3(0,0,-1);
+const WB = (x,y,z)=>[x+HB.OX, y, z+HB.OZ];
+const TOUR = [
+  {pos:WB(-2.5,EYE,7.5),  look:WB(.7,1.7,5.0)},
+  {pos:WB(.7,EYE,6.15),   look:WB(.75,1.7,2.4), w:1.0},
+  {pos:WB(.75,EYE,4.8),   look:WB(3.7,1.15,1.9), w:.8, hold:.9, room:'b_living'},
+  {pos:WB(3.8,EYE,4.4),   look:WB(6.5,1.7,4.4), w:.8},
+  {pos:WB(5.1,EYE,4.6),   look:WB(5.3,1.7,8.0), w:.5},
+  {pos:WB(5.3,EYE,6.15),  look:WB(10.5,1.7,6.15), w:.6},
+  {pos:WB(8.5,EYE,6.2),   look:WB(9.3,1.6,9.5), w:.8},
+  {pos:WB(9.15,EYE,7.0),  look:WB(8.8,1.2,12.8), w:.6, hold:1.0, room:'b_dining'},
+  {pos:WB(10.6,EYE,9.3),  look:WB(14,1.6,9.6), w:.8},
+  {pos:WB(12.75,EYE,8.9), look:WB(12.4,.85,13.6), w:.6, hold:.9, room:'b_terrace'},
+  {pos:WB(13.2,EYE,10.0), look:WB(17,1.5,11.2), w:.5},
+  {pos:WB(14.4,EYE,10.95),look:WB(20,1.2,11.4), w:.7},
+  {pos:WB(17.3,EYE,8.35), look:WB(27.5,.4,11.6), w:.8, hold:1.0, room:'b_pool'},
+  {pos:WB(24.8,EYE,8.3),  look:WB(26.5,1.6,4.0), w:1.4},
+  {pos:WB(25.8,EYE,6.0),  look:WB(25.4,1.5,2.0), w:.6},
+  {pos:WB(25.4,EYE,5.0),  look:WB(22.0,.3,2.6), w:.5, hold:.9, room:'b_jacuzzi'},
+  {pos:WB(24.2,EYE,.75),  look:WB(21.0,1.5,1.6), w:.8},
+  {pos:WB(21.6,EYE,1.7),  look:WB(20.0,1.5,4.1), w:.6},
+  {pos:WB(21.0,EYE,4.05), look:WB(18.0,1.4,3.0), w:.4},
+  {pos:WB(19.5,EYE,4.15), look:WB(17.4,.9,.9), w:.4, hold:1.1, room:'b_bed'},
+];
+let tour = null;
+function buildTour(){
+  ROOMS.b_living = {code:'02', name:'Living',           meta:['15 m²','+0.45','4.45 × 3.30'], note:'The front door opens straight into the living room. A tree court sits behind its back wall; a glass door leads on to the gallery.'};
+  ROOMS.b_terrace = {code:'09', name:'Covered terrace', meta:['22 m²','+0.45','2.70 × 8.10'], note:'An outdoor room behind a brick screen. The opening in the screen lines up with the pool.'};
+  ROOMS.b_pool    = {code:'15', name:'Pool',            meta:['25 m²','−1.45','8.20 × 3.10'], note:'Stone deck on three sides, garden on the fourth. The plant room and a pool WC close the far end.'};
+  ROOMS.b_jacuzzi = {code:'12', name:'Terrace & jacuzzi', meta:['14 m²','+0.30','2.70 × 5.10'], note:'A private terrace off the master bedroom, with the jacuzzi set into the deck.'};
+  ROOMS.b_bed     = {code:'11', name:'Master bedroom',  meta:['23 m²','+0.45','4.50 × 5.10'], note:'Glass to the terrace, the walk-in closet behind, the bath across the hall. The upper floor sits above.'};
+  ROOMS.b_dining = {code:'07', name:'Dining & Kitchen', meta:['37 m²','+0.45','4.60 × 8.05'], note:'Folding doors from the gallery. Glass on both long sides: the garden strip on one, the covered terrace and the pool on the other.'};
+  const pts=TOUR.map(n=>new THREE.Vector3(...n.pos)), lks=TOUR.map(n=>new THREE.Vector3(...n.look)), ph=[]; let a=0, w=0;
+  for(let i=1;i<TOUR.length;i++){ w+=TOUR[i].w||1; if(TOUR[i].hold||i===TOUR.length-1){ ph.push({k:'move',a,b:i,d:w}); ph.push({k:'hold',a:i,d:TOUR[i].hold||0,room:TOUR[i].room}); a=i; w=0; } }
+  tour = { n:pts.length, ph, total:ph.reduce((s,p)=>s+p.d,0), pc:new THREE.CatmullRomCurve3(pts,false,'centripetal'), lc:new THREE.CatmullRomCurve3(lks,false,'centripetal') };
+}
+function roomsFor(idx){                          // each room sweeps to material as the camera crosses into it
+  c2.rooms[0] = 1; c2.rooms[1] = ease(range(idx, .85, 2.0)); c2.rooms[2] = ease(range(idx, 2.6, 5.2));
+  c2.rooms[3] = ease(range(idx, 5.5, 6.9)); c2.rooms[4] = ease(range(idx, 6.2, 7.0));
+  c2.rooms[5] = ease(range(idx, 7.4, 8.9)); c2.rooms[6] = ease(range(idx, 10.4, 12.0));
+  c2.rooms[7] = ease(range(idx, 13.0, 14.6)); c2.rooms[8] = ease(range(idx, 17.4, 18.9));
+}
+const PQ = { main:[0,.8], exit:[.8,.89], close:[.89,.94], erase:[.94,1] };
+const _E0 = {pos:new THREE.Vector3(), look:new THREE.Vector3()};
+function planRig(P){
+  c2.notesK = 1; c2.erase = 0;
+  if(P < PQ.main[1]){
+    const q = lerp(Q.sheet[0], 1, range(P, ...PQ.main)); rig2(q);
+    c2.notesK = 1 - range(q, .3, .36); return;
+  }
+  if(P < PQ.exit[1]){
+    // up and out: the roof lifts off, the camera rises over the living room and turns to look down
+    const e = range(P, ...PQ.exit), k = ease(e);
+    rig2(1); _E0.pos.copy(cam.pos); _E0.look.copy(cam.look);
+    const D1 = KP/Math.tan(27.5*Math.PI/180);
+    const pc = new THREE.CatmullRomCurve3([_E0.pos.clone(), new THREE.Vector3(27.6, 8.0, -6.2), new THREE.Vector3(23.5, .55*D1, -4.0), new THREE.Vector3(TP.x, TP.y+D1, TP.z)], false, 'centripetal');
+    const lc = new THREE.CatmullRomCurve3([_E0.look.clone(), new THREE.Vector3(25.5, .5, -7.5), new THREE.Vector3(21, 0, -3.5), TP.clone()], false, 'centripetal');
+    pc.getPoint(k, cam.pos); lc.getPoint(k, cam.look);
+    cam.up.copy(UPY).lerp(UPZ, ease(range(e, .35, .95))).normalize();
+    cam.fov = lerp(62, 55, k); cam.f = 12/Math.tan(cam.fov*Math.PI/360); cam.dist = cam.pos.y; cam.s = 1; cam.Kv = KP; cam.walk = 0;
+    cam.room = 'b_bed'; cam.roomA = 1 - range(e, 0, .12);
+    c2.cutY = lerp(30, RISEY, ease(range(e, 0, .12))); c2.cutZ = 100;
+    roomsFor(tour.n-1); const back = 1 - ease(range(e, .4, .92)); for(let i=0;i<9;i++) c2.rooms[i] *= back;
+    c2.planK = .4*range(e, .8, 1); c2.notesK = range(e, .86, 1); c2.stage = 'exit'; return;
+  }
+  if(P < PQ.close[1]){ rig2(lerp(Q.rise[1]-1e-4, Q.rise[0], range(P, ...PQ.close))); c2.stage = 'close'; return; }
+  // the sheet is erased back to blank paper; the section then draws itself on it
+  rig2(Q.sheet[0]); const e = range(P, ...PQ.erase);
+  c2.erase = ease(range(e, .05, .8)); c2.notesK = 1 - range(e, 0, .45); c2.stage = 'erase';
+}
+function rig2(q){
+  cam.walk = 0; cam.room = null; cam.roomA = 0; cam.u = 0; cam.w = 0;
+  c2.cutZ = 100; c2.cutY = YP; c2.planK = 1; for(let i=0;i<9;i++) c2.rooms[i] = 0;
+  const t0p = Math.tan(FOV0*Math.PI/360);
+  if(q < Q.swing[1]){
+    // swing at 13 km: section (looking north-west… along −z) turns into plan (looking down)
+    const a = ease(range(q, ...Q.swing)), th = a*Math.PI/2;
+    baseRig(STAGE.lens0 - 0.02);
+    const Ks = K, Kk = lerp(Ks, KP, a), D = Kk/t0p, T = TARGET.clone().lerp(TP, a);
+    cam.pos.set(T.x, T.y + D*Math.sin(th), T.z + D*Math.cos(th)); cam.look.copy(T);
+    cam.up.set(0, Math.cos(th), -Math.sin(th));
+    cam.fov = FOV0; cam.f = 12/t0p; cam.dist = D; cam.s = 0; cam.Kv = Kk;
+    c2.cutY = lerp(30, YP, ease(range(q, 0, .09))); c2.cutZ = lerp(0, 30, ease(range(q, .04, .12)));
+    c2.planK = a; c2.stage = 'swing'; return;
+  }
+  if(q < Q.rise[1]){
+    const s = ease(range(q, ...Q.rise)), sl = 1 - Math.pow(1-s, 2.4);
+    const t = Math.exp(lerp(Math.log(t0p), Math.log(Math.tan(27.5*Math.PI/180)), sl)), D = KP/t;
+    cam.pos.set(TP.x, TP.y + D, TP.z); cam.look.copy(TP); cam.up.copy(UPZ);
+    cam.fov = 2*Math.atan(t)*180/Math.PI; cam.f = 12/t; cam.dist = D; cam.s = s; cam.Kv = KP;
+    c2.cutY = lerp(YP, RISEY, ease(range(q, Q.rise[0]+.04, Q.rise[1])));
+    c2.planK = 1 - .6*s; c2.stage = q < Q.sheet[1] ? 'sheet' : 'rise'; return;
+  }
+  const D1 = KP/Math.tan(27.5*Math.PI/180);
+  if(q < Q.down[1]){
+    const d = range(q, ...Q.down), e = ease(d);
+    const pc = new THREE.CatmullRomCurve3([new THREE.Vector3(TP.x, TP.y+D1, TP.z), new THREE.Vector3(12, .5*D1, -2.2), new THREE.Vector3(3.6, 5.0, -2.4), new THREE.Vector3(...TOUR[0].pos)], false, 'centripetal');
+    const lc = new THREE.CatmullRomCurve3([new THREE.Vector3(TP.x, 0, TP.z), new THREE.Vector3(14, 0, -3.0), new THREE.Vector3(9.5, 1.2, -4.6), new THREE.Vector3(...TOUR[0].look)], false, 'centripetal');
+    pc.getPoint(e, cam.pos); lc.getPoint(e, cam.look);
+    cam.up.copy(UPZ).lerp(UPY, ease(range(d, 0, .6))).normalize();
+    cam.fov = lerp(55, 62, e); cam.f = 12/Math.tan(cam.fov*Math.PI/360); cam.dist = cam.pos.y; cam.s = 1; cam.Kv = KP;
+    c2.cutY = lerp(RISEY, 12, ease(range(d, .55, .95)));
+    c2.planK = .4*(1-range(d,0,.3));
+    c2.rooms[0] = ease(range(d, .45, 1));
+    c2.stage = 'down'; return;
+  }
+  // the walk
+  if(!tour) buildTour();
+  let t = range(q, ...Q.walk)*tour.total, idx = 0, drift = 0;
+  for(let i=0;i<tour.ph.length;i++){ const p=tour.ph[i];
+    if(t <= p.d || i===tour.ph.length-1){ const l = clamp(t/Math.max(p.d,1e-6));
+      if(p.k==='move'){ idx = p.a + (p.b-p.a)*ease(l); const nx=tour.ph[i+1], pv=tour.ph[i-1];
+        if(nx && nx.room && l>.7){ cam.room=nx.room; cam.roomA=range(l,.7,1); }
+        if(pv && pv.room && l<.2){ cam.room=pv.room; cam.roomA=1-range(l,0,.2); } }
+      else { idx = p.a; cam.room = p.room; cam.roomA = 1; drift = l; }
+      break; }
+    t -= p.d; }
+  const u = idx/(tour.n-1); tour.pc.getPoint(u, cam.pos); tour.lc.getPoint(u, cam.look);
+  if(drift){ const dv = new THREE.Vector3().subVectors(cam.look, cam.pos).normalize(); cam.pos.addScaledVector(dv, .18*ease(drift)); }
+  cam.up.copy(UPY); cam.fov = 62; cam.f = 12/Math.tan(cam.fov*Math.PI/360); cam.dist = cam.pos.y; cam.walk = 1;
+  c2.cutY = 30; c2.planK = 0; roomsFor(idx);
+  c2.stage = 'walk';
+}
+
+/* ================================================================
+   8. SIZE / LOOP
+================================================================ */
+let dpr = 1;
+function resize(){
+  W = innerWidth; H = innerHeight; dpr = Math.min(devicePixelRatio||1, 1.75);
+  renderer.setPixelRatio(dpr); renderer.setSize(W,H,false);
+  const bw=Math.floor(W*dpr), bh=Math.floor(H*dpr);
+  rtN.setSize(bw,bh); rtP.setSize(bw,bh); rtLit.setSize(bw,bh);
+  inkMat.uniforms.uRes.value.set(bw,bh); inkMat.uniforms.uDpr.value=dpr;
+  camera.aspect = W/H; svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  fitK(); fitKP();
+}
+addEventListener('resize', resize); resize();
+
+let target = 0, prog = 0, target2 = 0, prog2 = 0, drawT = -1, last = performance.now();
+/* One smooth scroll (Lenis) feeds two ScrollTriggers, one per chapter. Without the
+   libraries the page still works from the native scroll position. */
+const ch1El = $('#ch1'), ch2El = $('#ch2');
+function readScroll(){
+  const y = scrollY;
+  target2 = clamp((y - ch2El.offsetTop)/Math.max(1, ch2El.offsetHeight));
+  target = clamp((y - ch1El.offsetTop)/Math.max(1, ch1El.offsetHeight - innerHeight))*TIMELINE_END;
+}
+let lenis = null;
+if(!MANUAL && window.gsap && window.ScrollTrigger){
+  gsap.registerPlugin(ScrollTrigger);
+  if(window.Lenis && !reduceMotion){
+    lenis = new Lenis({ lerp:.085, smoothWheel:true, wheelMultiplier:.9 });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(t => lenis.raf(t*1000)); gsap.ticker.lagSmoothing(0);
+  }
+  ScrollTrigger.create({ trigger:ch2El, start:'top top', end:'bottom top', onUpdate:st => { target2 = st.progress; } });
+  ScrollTrigger.create({ trigger:ch1El, start:'top top', end:'bottom bottom', onUpdate:st => { target = st.progress*TIMELINE_END; } });
+} else addEventListener('scroll', readScroll, {passive:true});
+
+const stageEls = [...document.querySelectorAll('#stages div')];
+const cta = $('#cta'), brief = $('#brief');
+$('#mailCopy').addEventListener('click', async ()=>{
+  try{ await navigator.clipboard.writeText('yousefjjh@gmail.com'); $('#mailCopy').textContent='Copied'; }
+  catch(e){ const r=document.createRange(); r.selectNodeContents($('#mailAddr')); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); $('#mailCopy').textContent='Selected'; }
+  setTimeout(()=>{ $('#mailCopy').textContent='Copy'; }, 1800);
+});
+/* ---- replay one walk: fade to paper, jump to its start, then play it by scrolling on its own ---- */
+const WALKS = {
+  plan:    { label:'Plan walk',    from:()=>ch2El.offsetTop + .136*ch2El.offsetHeight, to:()=>ch2El.offsetTop + .80*ch2El.offsetHeight, secs:46 },
+  section: { label:'Section walk', from:()=>ch1El.offsetTop + .545*(ch1El.offsetHeight - innerHeight), to:()=>ch1El.offsetTop + .85*(ch1El.offsetHeight - innerHeight), secs:28 },
+};
+const replayEl = $('#replay'), flashEl = $('#flash');
+let auto = null;
+function setScroll(y){ if(lenis) lenis.scrollTo(y, {immediate:true, force:true}); else window.scrollTo(0, y); if(window.ScrollTrigger) ScrollTrigger.update(); readScroll(); }
+function stopAuto(){ if(auto){ auto = null; $('#replayStop').textContent = 'Play'; } }
+function playFrom(y0, y1, secs){
+  const t0 = performance.now(), span = y1 - y0, dur = reduceMotion ? 0 : secs*1000*Math.max(0, (y1 - y0))/Math.max(1, y1 - y0);
+  auto = { y0, y1, t0, dur };
+  $('#replayStop').textContent = 'Pause';
+  const step = now => { if(!auto) return; const k = auto.dur ? Math.min(1, (now - auto.t0)/auto.dur) : 1;
+    setScroll(auto.y0 + (auto.y1 - auto.y0)*k); if(k < 1) requestAnimationFrame(step); else stopAuto(); };
+  requestAnimationFrame(step);
+}
+function jumpTo(y, then){
+  jumping = true; flashEl.classList.add('on');
+  setTimeout(()=>{
+    try{ setScroll(y); prog = target; prog2 = target2; if(drawT < 99) drawT = 99; } catch(e){ console.warn(e); }
+    setTimeout(()=>{ flashEl.classList.remove('on'); jumping = false; try{ if(then) then(); } catch(e){ console.warn(e); } }, 140);
+  }, 360);
+}
+let current = null, jumping = false;
+document.querySelectorAll('.walkBtn').forEach(b=>b.addEventListener('click', ()=>{
+  const w = WALKS[b.dataset.walk]; current = w;
+  $('#replayT').textContent = w.label; replayEl.hidden = false;
+  jumpTo(w.from(), ()=>playFrom(w.from(), w.to(), w.secs));
+}));
+$('#replayStop').addEventListener('click', ()=>{
+  if(auto){ stopAuto(); return; }
+  if(current){ const y = scrollY, end = current.to(); if(y < end - 4){ const done = (y - current.from())/(end - current.from()); playFrom(y, end, current.secs*(1 - Math.max(0, done))); } }
+});
+$('#replayEnd').addEventListener('click', ()=>{ stopAuto(); replayEl.hidden = true; current = null; jumpTo(document.documentElement.scrollHeight - innerHeight); });
+['wheel','touchstart','keydown'].forEach(ev=>addEventListener(ev, e=>{ if(auto && !(e.target && e.target.closest && e.target.closest('#replay'))) stopAuto(); }, {passive:true}));
+$('#ctaBtn').addEventListener('click', ()=>{ brief.hidden = false; $('#bName').focus(); });
+$('#briefX').addEventListener('click', ()=>{ brief.hidden = true; $('#ctaBtn').focus(); });
+addEventListener('keydown', e=>{ if(e.key==='Escape' && !brief.hidden){ brief.hidden = true; } });
+$('#briefF').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const txt = `PROJECT BRIEF\nName: ${$('#bName').value.trim()}\nPlot: ${$('#bSite').value.trim() || '—'} · ${$('#bSize').value.trim() || '—'}\n\n${$('#bText').value.trim() || '—'}\n\n(ref. A House Built by Yousef, section A-A)`;
+  const out = $('#briefOut'); out.textContent = txt; out.hidden = false;
+  $('#mailGo').href = 'mailto:yousefjjh@gmail.com?subject=' + encodeURIComponent('Project brief — ' + ($('#bName').value.trim()||'new project')) + '&body=' + encodeURIComponent(txt);
+  try{ await navigator.clipboard.writeText(txt); $('#briefTxt').textContent = 'Brief copied. Paste it into an email to yousefjjh@gmail.com, or into a message on archpassion.com. '; }
+  catch(err){ const r=document.createRange(); r.selectNodeContents(out); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); $('#briefTxt').textContent = 'Your browser blocked copying. The brief is selected below — copy it with your keyboard.'; }
+});
+const hud = { lf:$('#lf'), lfov:$('#lfov'), ld:$('#ld'), ls:$('#ls'), ts:$('#tscale'), tp:$('#tproj'), bar:$('#lensbar b'),
+  cmd:$('#cmdt'), hint:$('#hint'), mx:$('#mx'), my:$('#my'), mz:$('#mz'), ms:$('#mstate') };
+const setT=(e,s)=>{ if(e.textContent!==s) e.textContent=s; };
+
+function updatePlanNotes(ch2){
+  updateNotes(Math.max(0, drawT)*3.9, planItems);
+  psvg.style.opacity = ch2 ? String(c2.notesK) : '0';
+}
+function chapter2Hud(){
+  const q = prog2;
+  setT($('#ldl'), 'Height'); setT(hud.ld, cam.pos.y > 1000 ? fmt(cam.pos.y)+' m' : fmt(cam.pos.y,1)+' m');
+  setT($('#tdraw'), 'Ground floor plan'); setT($('#tsheet'), 'A-101 · Rev P1'); setT($('#mtitle'), 'Live plan');
+  if(c2.stage==='walk'){ setT(hud.ls, 'eye +'+cam.pos.y.toFixed(2)); setT(hud.ts, 'Eye level'); }
+  setT(hud.tp, c2.stage==='erase' ? 'Next sheet' : c2.stage==='exit' ? 'Rising' : c2.stage==='close' ? 'Plan perspective' : c2.stage==='sheet' ? 'Plan · near-parallel' : c2.stage==='rise' ? 'Plan perspective' : c2.stage==='down' ? 'Descending' : 'Walk · lit');
+  hud.bar.style.width = (Math.min(1, cam.s)*100).toFixed(1)+'%';
+  const st = c2.stage==='sheet' ? 0 : c2.stage==='rise' ? 1 : c2.stage==='down' ? 2 : c2.stage==='walk' ? 3 : 4;
+  [...document.querySelectorAll('#stages2 div')].forEach((e,i)=>{ e.classList.toggle('on', i===st); e.classList.toggle('done', i<st); });
+  let c;
+  const tdp = Math.max(0, drawT);
+  if(drawT<0) c = '_LOAD KEYPLAN';
+  else if(c2.stage==='sheet' && tdp<T.behind[0]) c = '_PLAN · CUT AT +1.65 · POCHÉ';
+  else if(c2.stage==='sheet' && tdp<T.grid[0]) c = '_PLAN · LINES BELOW THE CUT';
+  else if(c2.stage==='sheet' && tdp*3.9<19.5) c = '_ANNOTATE · GRID · DIMENSIONS · ROOMS';
+  else if(c2.stage==='sheet') c = '_PLAN · GROUND FLOOR · CUT +1.65 · LENS '+fmt(cam.f)+' MM';
+  else if(c2.stage==='exit') c = '_UP · ROOF OFF · MATERIAL → INK';
+  else if(c2.stage==='close') c = `_LENS CLOSE · ${fmt(cam.f, cam.f<100?1:0)} MM · FLOOR HELD`;
+  else if(c2.stage==='erase') c = '_ERASE · NEXT SHEET A-301 · SECTION A–A';
+  else if(c2.stage==='rise') c = `_RISE · WALLS TO +${c2.cutY.toFixed(2)} · ${fmt(cam.f, cam.f<100?1:0)} MM`;
+  else if(c2.stage==='down') c = '_DESCEND · TO THE FRONT DOOR · 21 JUN 17:00';
+  else c = `_WALK · ${cam.room && cam.roomA>.5 ? ROOMS[cam.room].name.toUpperCase() : 'ON THE AXIS'} · x ${cam.pos.x.toFixed(1)}`;
+  setT(hud.cmd, c);
+  // live plan
+  const dir = camera.getWorldDirection(new THREE.Vector3());
+  m2Cam.setAttribute('transform', `translate(${PX(clamp(cam.pos.x,-4,44))} ${PZ(clamp(cam.pos.z,-14,8))})`);
+  const down = Math.abs(dir.y) > .9; m2Down.setAttribute('opacity', down?1:0);
+  if(!down){ const a = Math.atan2(dir.z, dir.x), half = cam.fov*Math.PI/360*(W/H), L = 26, x0 = PX(clamp(cam.pos.x,-4,44)), z0 = PZ(clamp(cam.pos.z,-14,8));
+    m2Cone.setAttribute('d', `M${x0} ${z0} L${x0+Math.cos(a+half)*L} ${z0+Math.sin(a+half)*L} L${x0+Math.cos(a-half)*L} ${z0+Math.sin(a-half)*L} Z`); }
+  else m2Cone.setAttribute('d','');
+  setT(hud.ms, down ? '↓ looking down' : '→ eye level');
+  setT(hud.mx, 'x '+cam.pos.x.toFixed(1)); setT(hud.my, 'z '+cam.pos.z.toFixed(1)); setT(hud.mz, 'h '+(cam.pos.y>999?fmt(cam.pos.y):cam.pos.y.toFixed(1)));
+}
+function frame(dt, draw=true){
+  // progress follows the scroll with a little inertia so the camera never jumps
+  prog += (target - prog) * (1 - Math.exp(-dt*7));
+  if(Math.abs(target-prog)<1e-5) prog=target;
+  if(drawT>=0) drawT += dt;
+  const td = Math.max(0, drawT);
+
+  prog2 += (target2 - prog2) * (1 - Math.exp(-dt*7));
+  if(Math.abs(target2-prog2)<1e-5) prog2=target2;
+  const ch2 = prog <= 1e-4;            // plan chapter until the section container is reached
+  if(ch2) planRig(prog2); else rig(prog);
+  camera.position.copy(cam.pos); camera.fov = cam.fov; camera.up.copy(cam.up);
+  const dl = cam.pos.distanceTo(cam.look);
+  camera.near = Math.max(0.05, dl - 60); camera.far = dl + 80;
+  camera.updateProjectionMatrix(); camera.lookAt(cam.look); camera.updateMatrixWorld();
+
+  // ink uniforms
+  const U = inkMat.uniforms;
+  U.uCutX.value = lerp(-5.5, 46, ease(range(td, T.cut[0], T.cut[1])));
+  U.uBehind.value = ease(range(td, T.behind[0], T.behind[1]));
+  U.uPix.value = 2*Math.tan(cam.fov*Math.PI/360)/(H*dpr);
+  U.uTime.value += dt;
+  uRef.value = Math.max(0, dl - 40);
+
+  const sweepOn = prog > 1e-4 && vprog > STAGE.sweep0 + 1e-4;
+  U.uScanX.value = cam.scan;
+  U.uInkLit.value = lerp(0.22, 0.5, ease(range(cam.walk,0,0.1)));
+  U.uBeamK.value = lerp(1, 0.85, ease(range(cam.walk,0,0.1)));
+  hemi.intensity = lerp(1.6, 1.15, ease(range(cam.walk,0,0.1)));
+  U.uScanOn.value = sweepOn ? Math.min(1, range(cam.scan, SCAN0, SCAN0+3)) * (1 - range(cam.scan, SCAN1-3, SCAN1)) : 0;
+  U.uLitOn.value = sweepOn ? 1 : 0;
+  U.uBeam.value = ease(range(cam.scan, 20.0, 23.0));
+  if(ch2){
+    setSun(2);
+    U.uDepthScale.value = 4.0; CUT.uCutZ.value = c2.cutZ; CUT.uCutY.value = c2.cutY;
+    U.uCutX.value = lerp(U.uCutX.value, -6, c2.erase); U.uBehind.value *= 1 - c2.erase;
+    U.uPlanK.value = c2.planK; U.uSheet.value = 0; U.uFlatDepth.value = c2.cutY > 9.3 ? .9 : 0;
+    U.uRoomMode.value = 1; U.uHouseB.value = 1;
+    BROOMS.forEach((b,i)=>{ U.uRR.value[i].set(...b.r); U.uRS.value[i].set(c2.rooms[i], b.a, b.d, 0); });
+    const anyLit = c2.rooms.some(v=>v>0), anyFront = c2.rooms.some(v=>v>0 && v<1);
+    U.uScanOn.value = anyFront ? 1 : 0; U.uLitOn.value = anyLit ? 1 : 0; U.uBeam.value = 1; U.uBeamK.value = .9; U.uInkLit.value = .45; hemi.intensity = 1.15;
+  } else {
+    setSun(1); U.uRoomMode.value = 0; U.uHouseB.value = 1;
+    const tdS = range(prog, .004, .1)*(T.sun[1]+.3);
+    U.uCutX.value = lerp(-5.5, 46, ease(range(tdS, T.cut[0], T.cut[1]))); U.uBehind.value = ease(range(tdS, T.behind[0], T.behind[1])); U.uDepthScale.value = 15.5; CUT.uCutZ.value = CZ; CUT.uCutY.value = 100; U.uPlanK.value = 0; U.uSheet.value = 1; U.uFlatDepth.value = 0;
+  }
+  const litNeeded = ch2 ? U.uLitOn.value > 0 : sweepOn;
+  U.uCam.value.copy(camera.position);
+  U.uInvVP.value.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse).invert();
+  if(draw){
+    renderer.setRenderTarget(rtN); scene.overrideMaterial = matN; renderer.render(scene, camera);
+    renderer.setRenderTarget(rtP); scene.overrideMaterial = matP; renderer.render(scene, camera);
+    if(litNeeded){
+      if(!sunBaked){ renderer.setRenderTarget(rtSun); renderer.setClearColor(0x000000,0); scene.overrideMaterial = null; renderer.render(sunScene, sunCam); sunBaked = true; }
+      scene.overrideMaterial = null;
+      renderer.setRenderTarget(rtLit); renderer.setClearColor(0xe3ded2,1); renderer.render(litScene, camera); renderer.setClearColor(0x000000,0);
+    }
+    scene.overrideMaterial = null;
+    renderer.setRenderTarget(null); renderer.render(post, postCam);
+  }
+
+  // notes: technical notes recede during the turn, rooms and sun stay
+  const tdSec = ch2 ? 0 : range(prog, .004, .1)*(T.sun[1]+.3);
+  updateNotes(tdSec);
+  gSun.setAttribute('opacity', 1 - range(cam.scan, 20.0, 23.0)*(prog > STAGE.sweep0 ? 1 : 0));
+  svg.style.setProperty('--subw', String(1 - 0.5*cam.w));
+  const recede = 1 - 0.75*cam.u;
+  gGrid.setAttribute('opacity', recede*(1-0.7*cam.w)); gLvl.setAttribute('opacity', 1 - 0.9*cam.u);
+  svg.style.setProperty('--sub', String(1 - cam.u)); gDim.setAttribute('opacity', recede*(1-0.7*cam.w)); gOri.setAttribute('opacity', recede);
+
+  updatePlanNotes(ch2);
+
+  if(!ch2){ setT($('#ldl'),'Dist to cut'); setT($('#tdraw'),'Section A–A'); setT($('#tsheet'),'A-301 · Rev P1'); setT($('#mtitle'),'Live section'); }
+  // HUD
+  setT(hud.lf, fmt(cam.f, cam.f<100?1:0));
+  setT(hud.lfov, cam.fov.toFixed(cam.fov<1?3:1)+'°');
+  if(!ch2) setT(hud.ld, cam.walk>0 ? (cam.pos.z<CZ ? 'inside · '+fmt(CZ-cam.pos.z,1)+' m' : fmt(cam.pos.z-CZ,1)+' m') : cam.dist>1000 ? fmt(cam.dist)+' m' : fmt(cam.dist,1)+' m');
+  const scaleN = Math.round((2*(ch2?cam.Kv:K)/H)/0.000264583);
+  if(!ch2 || c2.stage!=='walk') setT(hud.ls, cam.walk>0 && !ch2 ? 'eye +'+(cam.pos.y).toFixed(2) : '1:'+scaleN); setT(hud.ts, cam.walk>0 ? 'Eye level' : '1:'+scaleN);
+  if(!ch2) setT(hud.tp, cam.walk>0 ? 'Walk · lit' : cam.s<0.02 ? 'Near-parallel' : cam.w>0.02 ? 'Persp. 3/4 · lit' : cam.u>0.02 ? 'Perspective 3/4' : 'Section persp.');
+  if(!ch2) hud.bar.style.width = (cam.s*100).toFixed(1)+'%';
+  // room card during the walk
+  const roomEl = $('#room');
+  if(cam.room && cam.roomA>0){
+    const r = ROOMS[cam.room];
+    if(roomEl.dataset.k !== cam.room){
+      roomEl.dataset.k = cam.room; $('#rcode').textContent = r.code; $('#rname').textContent = r.name;
+      $('#rmeta').innerHTML = r.meta.map(m=>`<span>${m}</span>`).join(''); $('#rnote').textContent = r.note;
+    }
+    roomEl.style.opacity = cam.roomA.toFixed(3);
+    roomEl.style.transform = `translateY(calc(-40% + ${(1-cam.roomA)*10}px))`;
+  } else roomEl.style.opacity = '0';
+  // the projected drawing notes give way to the room cards
+  svg.style.opacity = ch2 ? '0' : String(prog > STAGE.walk1 ? range(retOut, 0.55, 1) : 1 - range(prog, STAGE.walk0, STAGE.walk0+0.03));
+  const ctaK = ch2 ? 0 : range(prog, STAGE.end - 0.004, STAGE.end + 0.01);
+  if(ch2) chapter2Hud(dt);
+  if(!replayEl.hidden && ctaK > .9 && !auto && !jumping) { replayEl.hidden = true; current = null; }
+  $('#stages').hidden = ch2; $('#stages2').hidden = !ch2; msvg.style.display = ch2 ? 'none' : ''; msvg2.style.display = ch2 ? '' : 'none';
+  const wk2 = $('#walks'); wk2.style.opacity = ctaK.toFixed(3); wk2.style.transform = `translate(-50%, ${(1-ctaK)*14}px)`; wk2.style.pointerEvents = ctaK > .5 ? 'auto' : 'none'; wk2.inert = ctaK <= .5;
+  $('#stages').style.opacity = String(1 - ctaK); $('#cmd').style.opacity = String(1 - ctaK);
+  cta.style.opacity = ctaK.toFixed(3); cta.style.transform = `translate(-50%, ${(1-ctaK)*14}px)`; cta.style.pointerEvents = ctaK > .5 ? 'auto' : 'none'; cta.inert = ctaK <= .5;
+  hud.hint.style.opacity = (ch2 && td*3.9>19 && prog2<0.01) ? 1 : 0;
+
+  let st = prog>STAGE.walk1+.002 ? 4 : prog<STAGE.lens0 ? 0 : prog<STAGE.sweep0+.002 ? 1 : prog<STAGE.walk0+.002 ? 2 : 3;
+  stageEls.forEach((e,i)=>{ e.classList.toggle('on', i===st); e.classList.toggle('done', i<st); });
+  let c;
+  if(prog<STAGE.lens0 && tdSec<T.sun[1]) c='_SECTION A-A · ANNOTATE · GRID · LEVELS · ROOMS · SUN';
+  else if(prog>STAGE.walk1+.002){
+    if(prog<STAGE.out1) c='_RETURN · OUT THROUGH THE CUT';
+    else if(prog<STAGE.scan1) c=`_SCAN REVERSE · x = ${cam.scan.toFixed(2)} m · MATERIAL → INK`;
+    else if(prog<STAGE.end) c=`_LENS CLOSE · ${fmt(cam.f, cam.f<100?1:0)} MM`;
+    else c='_SECTION A-A · READY · START A PROJECT';
+  }
+  else if(prog<STAGE.lens0+.002) c='_SECTION A-A · CAMERA 13 KM · LENS '+fmt(cam.f)+' MM';
+  else if(prog<STAGE.lens1) c=`_DOLLYZOOM · ${fmt(cam.f, cam.f<100?1:0)} MM · CUT HELD AT 1:${scaleN}`;
+  else if(prog<STAGE.sweep0+.002) c=`_ORBIT · ${(cam.u*30).toFixed(1)}° · SECTION PERSPECTIVE`;
+  else if(prog<STAGE.walk0+.002) c=`_SCAN · x = ${cam.scan.toFixed(2)} m · ${cam.scan>18.5 && cam.scan<23 ? 'GLASS PASSED · SUN 21 JUN 17:00' : 'INK → MATERIAL'}`;
+  else if(prog<TIMELINE_END-.002) c=`_WALK · ${cam.room && cam.roomA>.5 ? ROOMS[cam.room].name.toUpperCase() : (cam.pos.z>0 ? 'ALONG THE CUT' : 'IN TRANSIT')} · x ${cam.pos.x.toFixed(1)} · eye ${cam.pos.y.toFixed(2)}`;
+  else c='_RETURN';
+  if(!ch2) setT(hud.cmd, c);
+
+  // live section
+  if(!ch2){
+  const into = Math.abs(camera.getWorldDirection(_v).z) > 0.85;
+  const cx = clamp(cam.pos.x,-4,46), cy = clamp(cam.pos.y,-3,13);
+  mCam.setAttribute('transform', `translate(${MX(cx)} ${MY(cy)})`);
+  mX1.setAttribute('opacity', into?1:0);
+  const dir = camera.getWorldDirection(new THREE.Vector3());
+  const half = cam.fov*Math.PI/360, len = 26;
+  const ang = Math.atan2(dir.y, Math.hypot(dir.x,dir.z)) ;
+  const hx = Math.hypot(dir.x,dir.z);
+  if(!into){
+    const a = Math.atan2(dir.y, dir.x);
+    const p1=[MX(cx)+Math.cos(a+half)*len, MY(cy)-Math.sin(a+half)*len], p2=[MX(cx)+Math.cos(a-half)*len, MY(cy)-Math.sin(a-half)*len];
+    mCone.setAttribute('d',`M${MX(cx)} ${MY(cy)} L${p1[0]} ${p1[1]} L${p2[0]} ${p2[1]} Z`);
+  } else mCone.setAttribute('d','');
+  setT(hud.ms, into ? '⊗ into sheet' : '→ in plane');
+  mScan.setAttribute('x1', MX(clamp(cam.scan,-4,46))); mScan.setAttribute('x2', MX(clamp(cam.scan,-4,46))); mScan.setAttribute('opacity', U.uScanOn.value);
+  setT(hud.mx, 'x '+cam.pos.x.toFixed(1)); setT(hud.my, 'y '+cam.pos.y.toFixed(1));
+  setT(hud.mz, 'z '+(cam.pos.z>=0?'+':'')+(cam.pos.z>999?fmt(cam.pos.z):cam.pos.z.toFixed(1)));
+  }
+}
+
+/* ================================================================
+   9. BOOT — loader runs while shaders compile, then hands over to the sheet
+================================================================ */
+const lp=$('#lp'), kcut=$('#kpcut'), loaderEl=$('#loader'), kArrows=[...document.querySelectorAll('.kparrow')];
+let loadK = 0, loaderDone=false, fadeT=0, ready=false;
+function loaderTick(dt){
+  if(loadK < 1){
+    const goal = ready ? 1 : 0.82;
+    loadK = Math.min(goal, loadK + dt*(ready?0.75:0.5));
+    kcut.setAttribute('x2', (0 + 40*loadK)*6);
+    kArrows[0].setAttribute('opacity', loadK>.02?1:0);
+    kArrows[1].setAttribute('opacity', loadK>.98?1:0);
+    lp.textContent = Math.round(loadK*100)+'%';
+    return;
+  }
+  fadeT += dt;                                  // hold the finished key plan, then fade into the sheet
+  loaderEl.style.opacity = String(1 - clamp((fadeT-0.45)/0.55));
+  if(fadeT > 0.6 && drawT < 0) drawT = reduceMotion ? 99 : 0;
+  if(fadeT > 1.0){ loaderDone = true; loaderEl.hidden = true; }
+}
+kcut.setAttribute('x2', 0);
+
+renderer.compile(scene, camera); renderer.compile(litScene, camera);
+(async()=>{ try{ await Promise.race([document.fonts.ready, new Promise(r=>setTimeout(r,2500))]); }catch(e){} ready = true; })();
+
+readScroll(); prog = target; prog2 = target2;
+
+if(!MANUAL){
+  function loop(now){
+    const dt = Math.min(0.05, (now-last)/1000); last = now;
+    if(!loaderDone) loaderTick(dt);
+    frame(dt);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+} else {
+  window.__cap = {
+    step(dt, p, draw=true, p2){ if(p!==undefined){ target=p; } if(p2!==undefined){ target2=p2; } if(!loaderDone) loaderTick(dt); frame(dt, draw); if(draw){ const g=renderer.getContext(); const px=new Uint8Array(4); g.readPixels(0,0,1,1,g.RGBA,g.UNSIGNED_BYTE,px); } },
+    ready: ()=>ready, loaderDone: ()=>loaderDone, drawT: ()=>drawT
+  };
+}
+</script>
+<script>
+document.getElementById('buildLink').addEventListener('click', e=>{ if(window.parent !== window){ e.preventDefault(); window.parent.postMessage({ go:'a-house-build' }, '*'); } });
+</script>
+
+</html>
