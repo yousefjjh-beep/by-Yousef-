@@ -360,6 +360,11 @@ body.playing .zoomhint{display:none!important}
 @media(max-width:900px),(max-height:520px){body.explore .zoomhint{display:none!important}}
 @media(max-height:520px){.tools{flex-wrap:nowrap!important}#aboutB{display:none!important}#sndHint{left:auto!important;right:200px!important;transform:none!important;font-size:11.5px!important}}
 
+.vpost{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:none;z-index:1;pointer-events:none;background:#0c0a08}
+.vpost.on{opacity:1}
+.sv>svg#scene{visibility:hidden}
+.sv{background:#0c0a08}
+
 /* v8 dusk theme */
 .c{stroke:#5a4a35}.c.et{fill:#33291f}.lbl{fill:#cbb891}.sealbl{fill:#7fa0ac}
 .pt text{stroke:#120e0a}.pt circle.core{stroke:#1a130c}
@@ -1517,24 +1522,27 @@ function showIntro(){let e=document.getElementById("intro");if(!e){e=document.cr
  e.scrollTop=0;requestAnimationFrame(()=>{e.classList.add("on");const b=e.querySelector(".in1");try{b.focus({preventScroll:true})}catch(x){}})}
 document.getElementById("aboutB").onclick=()=>{if(auto)stopAuto();showIntro()};
 /* v8: cinematic video scenes */
-const VSRC={"0": "video/0.mp4", "1a": "video/1a.mp4", "1b": "video/1b.mp4", "2a": "video/2a.mp4", "2b": "video/2b.mp4", "3a": "video/3a.mp4", "3b": "video/3b.mp4", "4": "video/4.mp4", "5": "video/5.mp4", "6a": "video/6a.mp4", "6b": "video/6b.mp4", "6c": "video/6c.mp4", "7": "video/7.mp4", "8": "video/8.mp4", "9": "video/9.mp4", "10": "video/10.mp4", "11": "video/11.mp4", "12": "video/12.mp4", "13": "video/13.mp4", "14": "video/14.mp4", "15a": "video/15a.mp4", "15b": "video/15b.mp4", "16a": "video/16a.mp4", "16b": "video/16b.mp4", "17a": "video/17a.mp4", "17b": "video/17b.mp4"};
+const VSRC={"0": "video/0.mp4?v=3", "1a": "video/1a.mp4?v=3", "1b": "video/1b.mp4?v=3", "2a": "video/2a.mp4?v=3", "2b": "video/2b.mp4?v=3", "3a": "video/3a.mp4?v=3", "3b": "video/3b.mp4?v=3", "4": "video/4.mp4?v=3", "5": "video/5.mp4?v=3", "6a": "video/6a.mp4?v=3", "6b": "video/6b.mp4?v=3", "6c": "video/6c.mp4?v=3", "7": "video/7.mp4?v=3", "8": "video/8.mp4?v=3", "9": "video/9.mp4?v=3", "10": "video/10.mp4?v=3", "11": "video/11.mp4?v=3", "12": "video/12.mp4?v=3", "13": "video/13.mp4?v=3", "14": "video/14.mp4?v=3", "15a": "video/15a.mp4?v=3", "15b": "video/15b.mp4?v=3", "16a": "video/16a.mp4?v=3", "16b": "video/16b.mp4?v=3", "17a": "video/17a.mp4?v=3", "17b": "video/17b.mp4?v=3"};
 const VID=[[[0,"0"]],[[0,"1a"],[5,"1b"]],[[0,"2a"],[3,"2b"]],[[0,"3a"],[2,"3b"]],[[0,"4"]],[[0,"5"]],[[0,"6a"],[4,"6b"],[6,"6c"]],[[0,"7"]],[[0,"8"]],[[0,"9"]],[[0,"10"]],[[0,"11"]],[[0,"12"]],[[0,"13"]],[[0,"14"]],[[0,"15a"],[1,"15b"]],[[0,"16a"],[2,"16b"]],[[0,"17a"],[3,"17b"]]];
 const VD={els:[],act:-1,key:null,stage:-1,ok:{}};
 (function(){const sv=document.querySelector("#stage .sv"),sc=document.getElementById("scene");
- sc.setAttribute("preserveAspectRatio","xMidYMid slice");for(let k=0;k<2;k++){const v=document.createElement("video");v.className="vsc";v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute("playsinline","");v.preload="auto";v.playbackRate=.8;
+ sc.setAttribute("preserveAspectRatio","xMidYMid slice");const ps=document.createElement('img');ps.className='vpost';ps.alt='';ps.decoding='async';sc.after(ps);VD.post=ps;for(let k=0;k<2;k++){const v=document.createElement("video");v.className="vsc";v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute("playsinline","");v.preload="auto";v.playbackRate=.8;
   v.addEventListener("playing",()=>{if(v.dataset.want!=="1")return;v.dataset.want="";VD.ok[v.dataset.key]=1;v.classList.add("on");const o=VD.els[1-k];o.classList.remove("on");setTimeout(()=>{if(!o.classList.contains("on"))try{o.pause()}catch(e){}},1100);VD.act=k});
   v.addEventListener("error",()=>{v.dataset.want="";v.classList.remove("on")});
   sc.after(v);VD.els.push(v)}})();
 function vidShot(key,force){if(!force&&key===VD.key)return;VD.key=key;const k=VD.act===0?1:0,v=VD.els[k];if(!VSRC[key]){vidOff();return}
  v.dataset.key=key;v.dataset.want="1";if(v.dataset.src!==key){v.src=VSRC[key];v.dataset.src=key}try{v.currentTime=0}catch(e){}v.playbackRate=.8;const p=v.play();if(p&&p.catch)p.catch(()=>{})}
+function vidPoster(key){const u=key?VSRC[key].replace('video/','poster/').replace('.mp4','.jpg'):null;if(u){if(VD.post.dataset.k!==key){VD.post.dataset.k=key;VD.post.src=u}VD.post.classList.add('on')}else VD.post.classList.remove('on')}
 function vidOff(){VD.key=null;VD.els.forEach(v=>{v.dataset.want="";v.classList.remove("on");try{v.pause()}catch(e){}})}
 function vidTick(t){const L=VID[cur];if(!L||!sdef){vidOff();return}
- if(VD.stage!==cur){VD.stage=cur;VD.key=null;VD.els.forEach(v=>v.classList.remove("on"));
+ if(VD.stage!==cur){VD.stage=cur;VD.key=null;vidPoster(L[0][1]);VD.els.forEach(v=>{v.classList.remove("on");v.dataset.want="";try{v.pause()}catch(e){}});
+  for(const [b,k] of L.slice(1)){const im=new Image();im.src=VSRC[k].replace('video/','poster/').replace('.mp4','.jpg')}{const nx2=VID[cur+1];if(nx2){const im=new Image();im.src=VSRC[nx2[0][1]].replace('video/','poster/').replace('.mp4','.jpg')}}
   const nx=VID[cur+1];if(nx&&VSRC[nx[0][1]]){try{const l=document.createElement("link");l.rel="preload";l.as="video";l.href=VSRC[nx[0][1]];document.head.appendChild(l)}catch(e){}}}
  let key=L[0][1];for(const [b,k] of L){const bt=sdef.beats[b]?sdef.beats[b][0]:1e9;if(t>=bt-.4)key=k}
  vidShot(key);
  const a=VD.els[VD.act];if(a&&a.classList.contains("on")){if(paused){if(!a.paused)a.pause()}else{if(a.paused&&!a.ended){const p=a.play();if(p&&p.catch)p.catch(()=>{})}
    if(a.duration&&a.duration-a.currentTime<1.0&&a.dataset.key===VD.key&&VD.els[1-VD.act].dataset.want!=="1")vidShot(VD.key,true)}}}
+{const _s=show;show=function(i){try{VD.els.forEach(v=>{v.classList.remove('on');v.dataset.want='';try{v.pause()}catch(e){}});VD.key=null;VD.stage=-1;const L=VID[i];if(L)vidPoster(L[0][1])}catch(e){}return _s.apply(this,arguments)}}
 {const _f=frame;frame=function(t){_f(t);try{vidTick(t);document.body.classList.add('playing')}catch(e){}};const _h=haltScene;haltScene=function(){_h.apply(this,arguments);vidOff();VD.stage=-1;document.body.classList.remove('playing')}}
 
 const h0=parseInt((location.hash.match(/stage-(\d+)/)||[])[1]);setMode(false);if(h0>=1&&h0<=S.length)show(h0-1);else{renderCard();renderQuiz();requestAnimationFrame(()=>overview());showIntro()}
