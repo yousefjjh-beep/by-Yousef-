@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Al Shuaib Project · مشروع الشعيب — three houses, drawn first</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@400;500;600&family=Amiri&family=Caveat:wght@500&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap">
+<style>
+  :root{--paper:#f1eee7;--ink:#1b1a18;--card:#f6f3ec;--rule:rgba(27,26,24,.28);--grid:rgba(27,26,24,.045);--red:#7d5230;--btn:#7d5230;--f:'Barlow',system-ui,sans-serif;--fc:'Barlow Condensed','Arial Narrow',sans-serif;--e:clamp(16px,2.6vw,36px)}
+  html,body{margin:0;background:#14100c;color:var(--ink);font-family:var(--f)}
+  html.lenis,html.lenis body{height:auto}
+  canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+  #story{height:1250vh}
+  .mark{width:23px;height:20px;flex:none;display:inline-block}
+  header{position:fixed;left:0;right:0;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px var(--e);background:rgba(241,238,231,.95);transition:background .5s,color .5s}
+  body.story header{background:linear-gradient(rgba(20,16,12,.6),rgba(20,16,12,0));color:#f1eee7}
+  .brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit}
+  .brand b{display:block;font:600 14px var(--fc);letter-spacing:.34em}
+  .brand small{display:block;font:500 8.5px var(--fc);letter-spacing:.3em;text-transform:uppercase;opacity:.65;margin-top:3px}
+  nav{display:flex;gap:10px;align-items:center;font:500 11px var(--fc);letter-spacing:.24em;text-transform:uppercase}
+  nav a{color:inherit;text-decoration:none;opacity:.7;padding:0 8px} nav a:hover{opacity:1} nav i{width:3px;height:3px;border-radius:50%;background:currentColor;opacity:.4}
+  .cta{display:inline-flex;align-items:center;background:var(--btn);color:#fff;font:600 11px var(--fc);letter-spacing:.24em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+  .cta b{padding:11px 16px;font-weight:600} .cta span{padding:11px 14px;font:400 12.5px var(--f);letter-spacing:0;text-transform:none;border-left:1px solid rgba(255,255,255,.35)}
+  #hero{position:fixed;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:84px 20px 60px;opacity:0;pointer-events:none}
+  #hero::before{content:"";position:absolute;left:50%;top:50%;width:min(1000px,94vw);height:min(600px,84vh);transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(246,243,236,.9),rgba(246,243,236,.62) 55%,rgba(246,243,236,0));z-index:-1}
+  .kick{font:500 11.5px var(--fc);letter-spacing:.32em;text-transform:uppercase;display:flex;gap:14px;align-items:center;opacity:.85}
+  .kick::before{content:"";width:7px;height:7px;background:var(--red)} .kick i{width:1px;height:14px;background:currentColor;opacity:.5}
+  #hero h1{font:300 clamp(34px,5.2vw,78px)/1.1 var(--f);letter-spacing:-.01em;margin:18px 0 12px;max-width:15ch}
+  #hero h1 em{font-style:normal;color:var(--red)}
+  #hero h2{font:400 clamp(22px,2.8vw,42px)/1.3 'Amiri',serif;margin:0 0 12px}
+  #hero p{font:400 clamp(14px,1.15vw,17px)/1.55 var(--f);max-width:46ch;margin:0 0 26px}
+  .btns{display:flex;gap:26px;align-items:center;flex-wrap:wrap;justify-content:center}
+  .b1{position:relative;background:var(--ink);color:var(--paper);padding:14px 20px;font:600 11.5px var(--fc);letter-spacing:.26em;text-transform:uppercase;text-decoration:none}
+  .b1::before{content:"";position:absolute;left:0;top:0;width:6px;height:6px;background:var(--red)}
+  .b2{position:relative;color:inherit;padding:8px 2px;font:600 11.5px var(--fc);letter-spacing:.26em;text-transform:uppercase;text-decoration:none;border-bottom:1.5px solid currentColor}
+  .b2::after{content:"";position:absolute;right:-3px;bottom:-4px;width:6px;height:6px;background:var(--red)}
+  .hint{margin-top:34px;font:500 10px var(--fc);letter-spacing:.34em;text-transform:uppercase;opacity:.6;display:flex;gap:12px;align-items:center}
+  .hint::before{content:"";width:1px;height:22px;background:var(--red)}
+  #loader{position:fixed;inset:0;z-index:6;background:#1b1a18;color:#f1eee7;display:flex;gap:18px;align-items:center;justify-content:center;pointer-events:none;overflow:hidden}
+  #loader::before,#loader::after{content:"";position:absolute;background:rgba(241,238,231,.22)}
+  #loader::before{left:0;right:0;top:50%;height:1px;box-shadow:0 -22px 0 rgba(241,238,231,.1),0 26px 0 rgba(241,238,231,.1),0 -64px 0 rgba(241,238,231,.06)}
+  #loader::after{top:0;bottom:0;left:calc(50% - 150px);width:1px;box-shadow:24px 0 0 rgba(241,238,231,.1),-40px 0 0 rgba(241,238,231,.06),318px 0 0 rgba(241,238,231,.1)}
+  #loader .mark{width:44px;height:38px}
+  #loader b{font:400 38px var(--fc);letter-spacing:.2em;color:transparent;-webkit-text-stroke:1px rgba(241,238,231,.75);display:block}
+  #loader small{font:500 9px var(--fc);letter-spacing:.42em;text-transform:uppercase;opacity:.5;display:block;margin-top:4px}
+  #shade{position:fixed;left:0;bottom:0;width:min(760px,70vw);height:min(420px,56vh);z-index:3;pointer-events:none;opacity:0;transition:opacity .6s;background:radial-gradient(ellipse at 0% 100%,rgba(17,13,10,.84),rgba(17,13,10,.5) 45%,rgba(17,13,10,0) 72%)}
+  body.story #shade{opacity:1}
+  .cap{position:fixed;left:var(--e);bottom:84px;z-index:4;max-width:32ch;color:#f1eee7;text-shadow:0 1px 12px rgba(0,0,0,.75);opacity:0;pointer-events:none}
+  .cap i{display:flex;gap:10px;align-items:center;font:500 10px var(--fc);font-style:normal;letter-spacing:.34em;text-transform:uppercase;opacity:.85;margin-bottom:8px}
+  .cap i::before{content:"";width:18px;height:1px;background:var(--red)}
+  .cap b{display:block;font:300 clamp(22px,2.3vw,33px)/1.14 var(--f)} .cap span{display:block;font:400 13px/1.5 var(--f);opacity:.86;margin-top:8px}
+  #read{position:fixed;right:var(--e);bottom:66px;z-index:4;background:rgba(15,17,16,.82);color:#f1eee7;padding:8px 14px;font:500 10.5px var(--fc);letter-spacing:.2em;text-transform:uppercase;opacity:0;pointer-events:none;white-space:nowrap}
+  #read b{color:#d3a97d;font-weight:600;margin-right:4px}
+  #bar{position:fixed;left:var(--e);right:var(--e);bottom:18px;z-index:4;display:flex;align-items:stretch;background:rgba(15,17,16,.82);color:#f1eee7;border:1px solid rgba(241,238,231,.16);opacity:0;pointer-events:none;font:500 10.5px var(--fc);letter-spacing:.22em;text-transform:uppercase}
+  #bar>div{padding:8px 16px;border-right:1px solid rgba(241,238,231,.16);display:flex;flex-direction:column;justify-content:center;gap:3px;white-space:nowrap}
+  #bar small{font-size:7.5px;letter-spacing:.3em;opacity:.5} #bar .lg{flex-direction:row;align-items:center;gap:9px;letter-spacing:.3em} #bar .lg .mark{width:16px;height:14px}
+  #bar .pr{flex:1;border-right:0} #bTrack{height:2px;background:rgba(241,238,231,.2);position:relative} #bFill{position:absolute;left:0;top:-1px;height:4px;background:var(--red);width:0}
+  #bTrack u{position:absolute;top:-4px;width:1px;height:10px;background:rgba(241,238,231,.5)}
+  #bar .pc{border-right:0;font-size:13px;letter-spacing:.06em;flex-direction:row;align-items:center;gap:3px} #bar .pc small{font-size:8px}
+  #end{position:fixed;left:var(--e);top:0;bottom:0;z-index:4;display:flex;flex-direction:column;justify-content:center;max-width:38ch;color:#f1eee7;opacity:0;pointer-events:none}
+  #end .kick{opacity:.8} #end b{font:300 clamp(30px,3.6vw,54px)/1.12 var(--f);margin:16px 0 22px;display:block} #end b em{font-style:normal;color:#c99c6e}
+  #end .btns{justify-content:flex-start} #end .b1{background:#f1eee7;color:var(--ink)}
+  @media (max-width:760px){nav{display:none}.cta span{display:none}#bar .hide{display:none}#read{left:var(--e);right:auto;bottom:66px;white-space:normal}.cap{bottom:118px}}
+
+  #page{position:relative;z-index:5;background:var(--paper);color:var(--ink);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px}
+  #page section{padding:clamp(64px,10vw,140px) var(--e);max-width:1320px;margin:0 auto}
+  #page .kick{margin-bottom:18px} .facts b{white-space:nowrap} #page section[id^=house-]{padding-top:clamp(40px,6vw,90px)!important;border-top:1.5px solid var(--ink)}
+  #page h3{font:300 clamp(30px,4.2vw,62px)/1.1 var(--f);letter-spacing:-.01em;margin:0 0 22px;max-width:18ch} #page h3 em{font-style:normal;color:var(--red)}
+  #page p{font:400 clamp(15px,1.2vw,18px)/1.6 var(--f);max-width:52ch;margin:0 0 14px}
+  .two{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(24px,5vw,80px);align-items:end}
+  .facts{display:grid;grid-template-columns:repeat(2,1fr);border-top:1.5px solid var(--ink)}
+  .facts div{padding:16px 0;border-bottom:1px solid var(--rule)} .facts b{display:block;font:300 clamp(22px,2.5vw,38px)/1 var(--f)} .facts small{font:500 10px var(--fc);letter-spacing:.3em;text-transform:uppercase;opacity:.65;display:block;margin-top:8px}
+  .rooms{display:grid;grid-template-columns:repeat(6,1fr);gap:clamp(12px,1.6vw,24px);margin-top:40px}
+  .room{margin:0;grid-column:span 2;position:relative} .room.w{grid-column:span 3}
+  .room img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;border:1px solid var(--ink)}
+  .room figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 0 0;font:500 11px var(--fc);letter-spacing:.26em;text-transform:uppercase}
+  .room figcaption span:last-child{font:400 20px 'Amiri',serif;letter-spacing:0} .room em{display:block;font:400 14px/1.5 var(--f);font-style:normal;opacity:.75;margin-top:4px;max-width:44ch}
+  .room::before{content:attr(data-n);position:absolute;left:0;top:0;background:var(--ink);color:var(--paper);font:600 10px var(--fc);letter-spacing:.2em;padding:6px 9px;z-index:1}
+  .mats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--ink);margin-top:36px}
+  .mats div{padding:0 0 16px;border-right:1px solid var(--ink)} .mats div:last-child{border-right:0}
+  .mats i{display:block;height:clamp(90px,12vw,170px);border-bottom:1px solid var(--ink)} .mats b{display:block;font:600 11px var(--fc);letter-spacing:.26em;text-transform:uppercase;padding:14px 14px 4px} .mats span{display:block;font:400 13.5px/1.45 var(--f);opacity:.75;padding:0 14px}
+  .planfig{margin:0;border:1px solid var(--ink);background:var(--card)} .planfig img{display:block;width:100%}
+  #last{text-align:center;max-width:none!important;background:#120e0a;color:#f1eee7} #last h3{margin:0 auto 26px;max-width:16ch} #last .btns .b1{background:#f1eee7;color:#1b1a18} #last .kick{justify-content:center}
+  #last small{display:block;margin-top:46px;font:500 10px var(--fc);letter-spacing:.3em;text-transform:uppercase;opacity:.5}
+  @media (max-width:760px){.two{grid-template-columns:1fr}.room,.room.w{grid-column:span 6}.mats{grid-template-columns:1fr 1fr}.mats div{border-bottom:1px solid var(--ink)}}
+
+  .opts{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.8vw,28px);margin-top:40px}
+  .opt{border:1px solid var(--ink);background:var(--card);display:flex;flex-direction:column;position:relative}
+  .opt img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-bottom:1px solid var(--ink);background:#14100c}
+  .opt .let{position:absolute;left:0;top:0;background:var(--btn);color:#fff;font:600 12px var(--fc);letter-spacing:.2em;padding:7px 11px}
+  .opt .in{padding:18px 18px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
+  .opt h4{margin:0;display:flex;justify-content:space-between;align-items:baseline;font:500 15px var(--fc);letter-spacing:.3em;text-transform:uppercase} .opt h4 span{font:400 24px 'Amiri',serif;letter-spacing:0}
+  .opt .ty{font:300 clamp(20px,1.9vw,27px)/1.15 var(--f)} #page .opt p{font-size:14.5px;margin:0;opacity:.8}
+  .opt dl{display:grid;grid-template-columns:repeat(3,1fr);margin:6px 0 0;border-top:1px solid var(--rule)} .opt dl div{padding:10px 0 4px} .opt dt{font:500 9px var(--fc);letter-spacing:.28em;text-transform:uppercase;opacity:.6} .opt dd{margin:4px 0 0;font:400 17px var(--f)}
+  .opt .price{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--rule);padding-top:12px;margin-top:auto;font:500 10px var(--fc);letter-spacing:.28em;text-transform:uppercase} .opt .price b{font:400 20px var(--f);letter-spacing:0;text-transform:none}
+  .opt .acts{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:6px} .wa{background:var(--btn)!important;color:#fff!important}
+  @media (max-width:900px){.opts{grid-template-columns:1fr}}
+
+  .hr{display:flex;align-items:center;gap:14px} #lang{background:none;border:1px solid currentColor;color:inherit;padding:9px 13px;font:500 13px 'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;cursor:pointer;opacity:.85} #lang:hover{opacity:1}
+  html.ar{--f:'IBM Plex Sans Arabic','Segoe UI',Tahoma,'Geeza Pro',sans-serif;--fc:'IBM Plex Sans Arabic','Segoe UI',Tahoma,'Geeza Pro',sans-serif}
+  html.ar *{letter-spacing:0!important} html.ar .dup{display:none!important}
+  html.ar #page,html.ar #hero,html.ar .cap,html.ar #end,html.ar #read,html.ar #bar,html.ar header{direction:rtl}
+  html.ar .kick,html.ar .cap i,html.ar .hint,html.ar nav,html.ar .cta,html.ar .b1,html.ar .b2,html.ar #bar,html.ar #read,html.ar .facts small,html.ar .opt dt,html.ar .opt .price,html.ar .room figcaption,html.ar .mats b,html.ar .brand small{font-size:13px;text-transform:none} html.ar #bar small{font-size:10px}
+  html.ar .brand b{font-size:17px} html.ar #hero h1{max-width:18ch;line-height:1.35} html.ar #page h3,html.ar .cap b,html.ar #end b{line-height:1.4} html.ar .opt h4{font-size:20px}
+  html.ar .b1::before{left:auto;right:0} html.ar .b2::after{right:auto;left:-3px} html.ar .room::before,html.ar .opt .let{left:auto;right:0} html.ar #end .btns{justify-content:flex-start}
+  @media (max-width:760px){#lang{padding:7px 9px}}
+
+  /* themes: html.dark / html.light. Dark is the cutting-mat look; light puts the same sheets on a pale desk. */
+  html.dark{--red:#c99c6e;--paper:#15110d;--ink:#efe7da;--card:#1f1812;--rule:rgba(236,232,223,.24);--grid:rgba(236,232,223,.045)}
+  html.dark header{background:rgba(20,16,12,.93);color:#f1eee7}
+  html.dark #hero::before{background:radial-gradient(closest-side,rgba(17,13,10,.9),rgba(17,13,10,.6) 55%,rgba(17,13,10,0))}
+  html.dark #end .b1{background:#f1eee7;color:#1b1a18} html.dark .mats i{border-bottom-color:rgba(236,232,223,.4)}
+  html.light body{background:#e6e1d8} html.light body.story header{background:linear-gradient(rgba(228,226,220,.85),rgba(228,226,220,0));color:#1b1a18}
+  html.light .cap,html.light #end{color:#1b1a18;text-shadow:none} html.light #end b em{color:var(--red)} html.light #end .b1{background:#1b1a18;color:#f1eee7}
+  html.light #shade{background:radial-gradient(ellipse at 0% 100%,rgba(236,234,228,.94),rgba(236,234,228,.7) 45%,rgba(236,234,228,0) 72%)}
+  #theme{background:none;border:1px solid currentColor;color:inherit;padding:9px 13px;font:500 13px 'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;cursor:pointer;opacity:.85} #theme:hover{opacity:1}
+  @media (max-width:760px){#theme{padding:7px 9px}.hr{gap:8px}}
+
+  #page .pnote{max-width:none;margin:22px 0 0;padding:12px 16px;border:1px solid var(--rule);border-inline-start:3px solid var(--red);font-size:14.5px;background:var(--card)}
+  #page #last .credit{max-width:none;margin:14px auto 0;font-size:14px;opacity:.75} #last .credit a{direction:ltr;unicode-bidi:isolate;display:inline-block;color:#d3a97d;text-decoration:underline;text-underline-offset:3px} #last small+.credit{margin-top:26px}
+</style>
+<script type="importmap">{"imports":{"three":"./lib/three.module.js","three/addons/":"./lib/jsm/"}}</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="loader"><svg class="mark" viewBox="0 0 24 21" aria-hidden="true"><path d="M.6 21 4 15l3.4 6ZM8.6 21 12 15l3.4 6ZM16.6 21 20 15l3.4 6ZM4.6 14 8 8l3.4 6ZM12.6 14 16 8l3.4 6Z" fill="currentColor"/><path d="M8.6 7 12 1l3.4 6Z" fill="#a9764a"/></svg><span><b>AL SHUAIB</b><small>Three houses by Yousef</small></span></div>
+<header>
+  <a class="brand" href="#" data-go="0"><svg class="mark" viewBox="0 0 24 21" aria-hidden="true"><path d="M.6 21 4 15l3.4 6ZM8.6 21 12 15l3.4 6ZM16.6 21 20 15l3.4 6ZM4.6 14 8 8l3.4 6ZM12.6 14 16 8l3.4 6Z" fill="currentColor"/><path d="M8.6 7 12 1l3.4 6Z" fill="#a9764a"/></svg><span><b>AL SHUAIB</b><small>Three houses by Yousef</small></span></a>
+  <nav><a href="#" data-go="0.06">Drawings</a><i></i><a href="#" data-go="0.3">Projection</a><i></i><a href="#" data-go="0.5">Material</a><i></i><a href="#" data-go="0.8">The house</a></nav>
+  <span class="hr"><button id="theme" type="button" aria-label="Switch between dark and light">Light</button><button id="lang" type="button" aria-label="Switch language">العربية</button><a class="cta" href="#choose" data-to="#choose"><b>Choose a house</b><span>3 houses</span></a></span>
+</header>
+<section id="hero">
+  <div class="kick">Al Shuaib Project <i></i> Three houses, one sheet each</div>
+  <h1>Three houses drawn first, then built in <em>Al Shuaib.</em></h1>
+  <h2 lang="ar" dir="rtl">مشروع الشعيب</h2>
+  <p>A plan, a section and an elevation on one sheet of paper. Scroll, and the drawings build the first house between them, then two more.</p>
+  <div class="btns"><a class="b1" href="#choose" data-to="#choose">Choose a house &nbsp;↓</a><a class="b2" href="walk.html">Walk Bayt Safar &nbsp;↗</a></div>
+  <div class="hint">Scroll to see how it is built</div>
+</section>
+<div class="cap" data-a="0.085" data-b="0.39"><i>Projection</i><b>Where three drawings agree, there is a house.</b><span>Each view pushes its lines into the room. Nothing appears until all three have passed.</span></div>
+<div class="cap" data-a="0.40" data-b="0.555"><i>Material</i><b>Sand render, oak and travertine.</b><span>The palms and the olive on the plan stand up as the sweep reaches them. The sun is getting low.</span></div>
+<div class="cap" data-a="0.57" data-b="0.70"><i>The front</i><b>One oak door in a quiet wall.</b><span>Slot windows, triangle vents, and a living room that rises above the rest.</span></div>
+<div class="cap" data-a="0.71" data-b="0.84"><i>The court</i><b>Every room looks inwards.</b><span>Seven metres square: a still pool, an olive in gravel, and the stair to the roof.</span></div>
+<div class="cap" data-a="0.85" data-b="0.93"><i>The pool</i><b>Dining opens east, to the water.</b><span>Ten metres of pool under a pergola, behind triangle screens.</span></div>
+<div class="cap" data-abs data-a="0.815" data-b="0.955"><i>Three houses</i><b>Two more sheets under this one.</b><span>Bayt Mustaqil and Bayt Mustatil, drawn and built the same way.</span></div>
+<div id="shade"></div>
+<div id="read"></div>
+<div id="bar">
+  <div class="lg"><svg class="mark" viewBox="0 0 24 21" aria-hidden="true"><path d="M.6 21 4 15l3.4 6ZM8.6 21 12 15l3.4 6ZM16.6 21 20 15l3.4 6ZM4.6 14 8 8l3.4 6ZM12.6 14 16 8l3.4 6Z" fill="currentColor"/><path d="M8.6 7 12 1l3.4 6Z" fill="#a9764a"/></svg>Al Shuaib</div>
+  <div><small>Sheet</small><span id="bSheet">01 / 04</span></div>
+  <div><small>Drawing</small><span id="bDraw">Drawings</span></div>
+  <div class="hide"><small>Scale</small><span>1:100</span></div>
+  <div class="pr"><small>Progress</small><div id="bTrack"><div id="bFill"></div><u style="left:8%"></u><u style="left:39.5%"></u><u style="left:56%"></u><u style="left:100%"></u></div></div>
+  <div class="pc"><span id="bPct">0</span><small>%</small></div>
+</div>
+<div id="end"><div class="kick">Three houses <i class="dup"></i><span class="dup" lang="ar">ثلاثة بيوت</span></div><b>One sheet each.<br><em>Choose yours.</em></b><div class="btns"><a class="b1" href="#choose" data-to="#choose">Choose a house &nbsp;↓</a><a class="b2" href="walk.html">Walk Bayt Safar &nbsp;↗</a></div></div>
+<div id="story"></div>
+<main id="page">
+  <section id="choose"><div class="kick">Choose your house <i class="dup"></i><span class="dup" lang="ar">اختر بيتك</span></div><h3>Three houses, <em>one language.</em></h3>
+    <p>Sand render, oak and travertine in all three. Pick the one that fits how you live, then ask us about it. All three are priced at SAR 20,000 per m².</p>
+    <div class="opts">
+      <article class="opt" id="opt-safar"><span class="let">A</span><img src="media/opt-safar.jpg" alt="Bayt Safar, a maquette on its drawing sheet" loading="lazy"><div class="in"><h4>Bayt Safar<span class="dup" lang="ar">بيت صفار</span></h4><div class="ty">One level around a court</div><p>Every room looks into a 7 × 7 m court. Tall living room, dining open to a 10 m pool.</p>
+        <dl><div><dt>Area</dt><dd>230 m²</dd></div><div><dt>Levels</dt><dd>1</dd></div><div><dt>Bedrooms</dt><dd>1</dd></div></dl>
+        <div class="price"><span>Price</span><b data-price="safar">SAR 4,600,000</b></div>
+        <div class="acts"><a class="b1 wa" href="#" data-wa="Bayt Safar">Ask on WhatsApp &nbsp;↗</a><a class="b2" href="walk.html">Walk it &nbsp;↗</a></div></div></article>
+      <article class="opt" id="opt-mustaqil"><span class="let">B</span><img src="media/opt-mustaqil.jpg" alt="Bayt Mustaqil, a maquette on its drawing sheet" loading="lazy"><div class="in"><h4>Bayt Mustaqil<span class="dup" lang="ar">بيت المستقل</span></h4><div class="ty">Two floors and a roof</div><p>A 9 × 9 m footprint on two floors, with a roof terrace under a pergola and a plunge pool beside it.</p>
+        <dl><div><dt>Area</dt><dd>160 m²</dd></div><div><dt>Levels</dt><dd>2 + roof</dd></div><div><dt>Bedrooms</dt><dd>1</dd></div></dl>
+        <div class="price"><span>Price</span><b data-price="mustaqil">SAR 3,200,000</b></div>
+        <div class="acts"><a class="b1 wa" href="#" data-wa="Bayt Mustaqil">Ask on WhatsApp &nbsp;↗</a><a class="b2" href="#house-mustaqil" data-to="#house-mustaqil">See it &nbsp;↓</a></div></div></article>
+      <article class="opt" id="opt-mustatil"><span class="let">C</span><img src="media/opt-mustatil.jpg" alt="Bayt Mustatil, a maquette on its drawing sheet" loading="lazy"><div class="in"><h4>Bayt Mustatil<span class="dup" lang="ar">بيت المستطيل</span></h4><div class="ty">One long room</div><p>One long room, 20 × 7 m, glazed along its whole south side to a pergola, a 15 m pool and palms.</p>
+        <dl><div><dt>Area</dt><dd>140 m²</dd></div><div><dt>Levels</dt><dd>1</dd></div><div><dt>Bedrooms</dt><dd>1</dd></div></dl>
+        <div class="price"><span>Price</span><b data-price="mustatil">SAR 2,800,000</b></div>
+        <div class="acts"><a class="b1 wa" href="#" data-wa="Bayt Mustatil">Ask on WhatsApp &nbsp;↗</a><a class="b2" href="#house-mustatil" data-to="#house-mustatil">See it &nbsp;↓</a></div></div></article>
+    </div>
+    <p class="pnote">Note: these prices are not real. They are shown for illustration only.</p>
+  </section>
+  <section class="two" style="padding-top:0">
+    <div><div class="kick">A · Bayt Safar <i class="dup"></i><span class="dup" lang="ar">بيت صفار</span></div><h3>One level around a court, <em>closed to the street.</em></h3>
+    <p>Bayt Safar is a court house in the Wadi Safar manner: thick sand-rendered walls, one oak door, and rooms that take their light from a court open to the sky.</p>
+    <p>The living room rises above the rest to catch the late sun. Dining opens east to the pool. Everything on this page is the same 3D model you just watched come off the sheet.</p></div>
+    <div class="facts"><div><b>230 m²</b><small>On one level</small></div><div><b>7 × 7 m</b><small>The court</small></div><div><b>6.30 m</b><small>Living room height</small></div><div><b>10 m</b><small>Pool under a pergola</small></div></div>
+  </section>
+  <section style="padding-top:0"><div class="kick">The rooms <i></i> Rendered from the model</div><h3>Five stops on <em>the walk.</em></h3>
+    <div class="rooms">
+      <figure class="room w" data-n="01"><img src="media/front.jpg" alt="The front of the house with its oak door between two date palms" loading="lazy"><figcaption><span>The front</span><span class="dup" lang="ar">الواجهة</span></figcaption><em>One oak door in a quiet wall, date palms either side.</em></figure>
+      <figure class="room w" data-n="02"><img src="media/living.jpg" alt="The living room" loading="lazy"><figcaption><span>Living room</span><span class="dup" lang="ar">المجلس</span></figcaption><em>The tall room. Low seating, oak, and light from high up.</em></figure>
+      <figure class="room" data-n="03"><img src="media/court.jpg" alt="The court with an olive tree" loading="lazy"><figcaption><span>Court</span><span class="dup" lang="ar">الفناء</span></figcaption><em>A still pool, an olive in gravel, the stair to the roof.</em></figure>
+      <figure class="room" data-n="04"><img src="media/dining.jpg" alt="The dining room" loading="lazy"><figcaption><span>Dining</span><span class="dup" lang="ar">الطعام</span></figcaption><em>Ten at the table, facing the water.</em></figure>
+      <figure class="room" data-n="05"><img src="media/pool.jpg" alt="The pool under a pergola" loading="lazy"><figcaption><span>Pool</span><span class="dup" lang="ar">المسبح</span></figcaption><em>Ten metres long, behind triangle screens.</em></figure>
+    </div>
+  </section>
+  <section style="padding-top:0"><div class="kick">Material <i class="dup"></i><span class="dup" lang="ar">المواد</span></div><h3>Five finishes, <em>nothing shiny.</em></h3>
+    <div class="mats">
+      <div><i style="background:#d9c7a3"></i><b>Sand render</b><span>Walls, inside and out</span></div>
+      <div><i style="background:#9c6b3f"></i><b>Oak</b><span>Doors, ceilings, joinery</span></div>
+      <div><i style="background:#e4dccb"></i><b>Travertine</b><span>Floors and the court</span></div>
+      <div><i style="background:#4b4a45"></i><b>Dark bronze</b><span>Window frames, screens</span></div>
+      <div><i style="background:#3fa9b8"></i><b>Water</b><span>The court and the pool</span></div>
+    </div>
+  </section>
+  <section style="padding-top:0" class="two"><div><div class="kick">Master plan <i class="dup"></i><span class="dup" lang="ar">المخطط</span></div><h3>The same house, <em>by hand.</em></h3><p>A sketched top view of the plot: the house, the court, the pool, and the palms and local trees around them.</p><div class="btns" style="justify-content:flex-start;margin-top:26px"><a class="b2" href="walk.html#plan">Open the master plan &nbsp;↗</a></div></div>
+    <figure class="planfig"><img src="media/plan.jpg" alt="Sketched master plan of Bayt Safar seen from above" loading="lazy"></figure></section>
+  <section class="two" id="house-mustaqil" style="padding-top:0"><div><div class="kick">B · Bayt Mustaqil <i class="dup"></i><span class="dup" lang="ar">بيت المستقل</span></div><h3>Two floors and a roof, <em>on a small plot.</em></h3><p>Bayt Mustaqil stands on a 9 × 9 m footprint. Living and kitchen below, the bedroom above, and the roof as a third room under a pergola.</p><p>A terrace and a plunge pool sit beside it, reached through the wide opening in the east wall.</p><div class="btns" style="justify-content:flex-start;margin-top:22px"><a class="b1 wa" href="#" data-wa="Bayt Mustaqil">Ask on WhatsApp &nbsp;↗</a></div></div>
+    <div class="facts"><div><b>160 m²</b><small>On two floors</small></div><div><b>9 × 9 m</b><small>Footprint</small></div><div><b>7.9 m</b><small>Top of the walls</small></div><div><b>SAR 3,200,000</b><small>At SAR 20,000 per m²</small></div></div></section>
+  <section style="padding-top:0"><div class="rooms" style="margin-top:0"><figure class="room" data-n="B1"><img src="media/opt-mustaqil.jpg" alt="Bayt Mustaqil on its sheet, between its section and elevation" loading="lazy"><figcaption><span>The house</span><span class="dup" lang="ar">البيت</span></figcaption><em>Slot windows, one oak door, palms at the corners.</em></figure><figure class="room" data-n="B2"><img src="media/mustaqil-roof.jpg" alt="The roof terrace with a pergola and seating" loading="lazy"><figcaption><span>Roof terrace</span><span class="dup" lang="ar">السطح</span></figcaption><em>Seating under an oak pergola, loungers in the sun.</em></figure><figure class="room" data-n="B3"><img src="media/mustaqil-pool.jpg" alt="The south front with the plunge pool beside it" loading="lazy"><figcaption><span>Plunge pool</span><span class="dup" lang="ar">المسبح</span></figcaption><em>Beside the house, with an olive at its end.</em></figure></div></section>
+  <section class="two" id="house-mustatil" style="padding-top:0"><div><div class="kick">C · Bayt Mustatil <i class="dup"></i><span class="dup" lang="ar">بيت المستطيل</span></div><h3>One long room, <em>open to the garden.</em></h3><p>Bayt Mustatil is 20 × 7 m. Its whole south side is glass between piers, so bedroom, living and dining all look out to the pergola and the pool.</p><p>The north wall stays closed, with slot windows only. You enter from the west end.</p><div class="btns" style="justify-content:flex-start;margin-top:22px"><a class="b1 wa" href="#" data-wa="Bayt Mustatil">Ask on WhatsApp &nbsp;↗</a></div></div>
+    <div class="facts"><div><b>140 m²</b><small>On one level</small></div><div><b>20 × 7 m</b><small>The room</small></div><div><b>15 m</b><small>Pool along the terrace</small></div><div><b>SAR 2,800,000</b><small>At SAR 20,000 per m²</small></div></div></section>
+  <section style="padding-top:0"><div class="rooms" style="margin-top:0"><figure class="room" data-n="C1"><img src="media/opt-mustatil.jpg" alt="Bayt Mustatil on its sheet, between its section and elevation" loading="lazy"><figcaption><span>The house</span><span class="dup" lang="ar">البيت</span></figcaption><em>A long roof, a pergola and five date palms.</em></figure><figure class="room" data-n="C2"><img src="media/mustatil-terrace.jpg" alt="The glazed south side seen across the pool" loading="lazy"><figcaption><span>South side</span><span class="dup" lang="ar">الواجهة الجنوبية</span></figcaption><em>Glass between piers, the pool the length of the terrace.</em></figure><figure class="room" data-n="C3"><img src="media/mustatil-west.jpg" alt="The west end with the entrance door" loading="lazy"><figcaption><span>Entrance</span><span class="dup" lang="ar">المدخل</span></figcaption><em>One oak door at the west end.</em></figure></div></section>
+  <section id="last"><div class="kick">Al Shuaib Project <i></i> by Yousef</div><h3>Now walk it, <em style="color:#c99c6e">room by room.</em></h3><div class="btns"><a class="b1" href="walk.html">Walk the house &nbsp;↗</a><a class="b2" href="#" data-go="0">Back to the sheet &nbsp;↑</a></div><small>Riyadh · 2026 · Sheet 01 of 01 · 1:100</small><p class="credit">The idea for this project is inspired by the work of Samnang Aing, <a href="https://x.com/SammmAing" target="_blank" rel="noopener">@SammmAing</a> on X.</p><p class="credit">The prices on this page are not real.</p></section>
+</main>
+<script src="./lib/gsap.min.js"></script><script src="./lib/ScrollTrigger.min.js"></script><script src="./lib/lenis.min.js"></script>
+<script src="./js/i18n.js"></script>
+<script type="module" src="./js/landing.js"></script>
+</body>
+</html>
