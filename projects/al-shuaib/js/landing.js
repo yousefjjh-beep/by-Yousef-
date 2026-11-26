@@ -279,7 +279,12 @@ function setCamera(T, s, r = 0) {
   const e = ss(0, 0.72, r), o = 1 - ss(0.6, 3.6, T), az = (k(1) - 4 * o - 10 * e) * RAD, el = (k(2) + 3 * o - 24 * e) * RAD, R = k(3) + 7 * o + 58 * e;
   if (window.__cam) { const c = window.__cam; look.set(c[0], c[1], c[2]); const a2 = c[3] * RAD, e3 = c[4] * RAD; eye.set(look.x + c[5] * Math.cos(e3) * Math.cos(a2), look.y + c[5] * Math.sin(e3), look.z + c[5] * Math.cos(e3) * Math.sin(a2)); camera.fov = c[6] || 30; camera.aspect = innerWidth / innerHeight; camera.near = 1; camera.far = c[5] + 300; camera.updateProjectionMatrix(); camera.position.copy(eye); camera.up.set(0, 1, 0); camera.lookAt(look); camera.updateMatrixWorld(true); return; }
   look.set(C.x + k(5) - 16 * e, C.y, C.z + k(6) + 17 * e); eye.set(look.x + R * Math.cos(el) * Math.cos(az), look.y + R * Math.sin(el), look.z + R * Math.cos(el) * Math.sin(az));
-  camera.fov = k(4); camera.aspect = innerWidth / innerHeight; camera.near = Math.max(0.5, R - 60); camera.far = R + 260; camera.updateProjectionMatrix();
+  // tall screens (phones): a wider lens from further back, and the picture lifted so the words fit under it
+  const asp = innerWidth / innerHeight, pf = Math.min(1, Math.max(0, (1.25 - asp) / 0.7)), R2 = R * (1 + 0.95 * pf);
+  eye.sub(look).multiplyScalar(R2 / R).add(look);
+  camera.fov = k(4) + 13 * pf; camera.aspect = asp; camera.near = Math.max(0.5, R2 - 70); camera.far = R2 + 300;
+  if (pf > 0.01) camera.setViewOffset(innerWidth, innerHeight, 0, Math.round(innerHeight * 0.09 * pf), innerWidth, innerHeight); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
   camera.position.copy(eye); camera.up.set(0, 1, 0); camera.lookAt(look); camera.updateMatrixWorld(true);
 }
 
@@ -350,7 +355,8 @@ function page(T, s, r = 0, tot = s) {
   const end = $('#end'); end.style.opacity = String(ss(0.8, 0.95, r)); end.style.pointerEvents = r > 0.9 ? 'auto' : 'none';
 }
 function frame(T, tot) { uL.value = document.documentElement.classList.contains('light') ? 1 : 0; const s = Math.min(1, tot / K), r = Math.min(1, Math.max(0, (tot - K) / (1 - K))); state.T = T; state.s = s; state.r = r; apply(T, s, r); page(T, s, r, tot); render(); }
-addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); targets(); });
+// phones fire resize all through the address bar sliding away: wait until it settles before rebuilding the buffers
+let rsT = 0; addEventListener('resize', () => { clearTimeout(rsT); rsT = setTimeout(() => { renderer.setSize(innerWidth, innerHeight); targets(); }, TOUCH ? 220 : 0); });
 window.__frame = (T, s) => { lastKey = ''; frame(T, s); lastKey = ''; frame(T, s); };
 window.__frame1 = (T, s) => { frame(T, s); return canvas.toDataURL('image/jpeg', 0.9); };
 // WhatsApp: set the number once here (digits only, country code first). While it is empty the buttons say so instead of opening a chat.

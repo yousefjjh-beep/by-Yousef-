@@ -2,7 +2,8 @@
 <html lang="en" class="dark">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14100c">
 <title>Al Shuaib Project · مشروع الشعيب — three houses, drawn first</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@400;500;600&family=Amiri&family=Caveat:wght@500&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap">
 <style>
@@ -118,6 +119,30 @@
 
   #page .pnote{max-width:none;margin:22px 0 0;padding:12px 16px;border:1px solid var(--rule);border-inline-start:3px solid var(--red);font-size:14.5px;background:var(--card)}
   #page #last .credit{max-width:none;margin:14px auto 0;font-size:14px;opacity:.75} #last .credit a{direction:ltr;unicode-bidi:isolate;display:inline-block;color:#d3a97d;text-decoration:underline;text-underline-offset:3px} #last small+.credit{margin-top:26px}
+  /* ---- phones: the drawing takes the upper part of the screen, words sit below it on a solid fade ---- */
+  @media (max-width:760px){
+    :root{--e:16px}
+    header{padding:calc(9px + env(safe-area-inset-top,0px)) 14px 9px;gap:10px}
+    .brand small{display:none} .brand b{white-space:nowrap} .cta{display:none}
+    #theme,#lang{padding:9px 12px;font-size:13px;min-height:38px}
+    #hero{justify-content:flex-end;align-items:flex-start;text-align:start;padding:0 18px calc(64px + env(safe-area-inset-bottom,0px))}
+    #hero::before{left:0;top:auto;bottom:0;width:100%;height:74%;transform:none;background:linear-gradient(to top,rgba(246,243,236,.97) 0%,rgba(246,243,236,.93) 58%,rgba(246,243,236,0) 100%)}
+    html.dark #hero::before{background:linear-gradient(to top,rgba(17,13,10,.97) 0%,rgba(17,13,10,.92) 58%,rgba(17,13,10,0) 100%)}
+    #hero .kick{font-size:10.5px;letter-spacing:.24em;gap:10px} #hero .kick i{display:none} #hero .kick{flex-wrap:wrap;row-gap:5px}
+    #hero h1{font-size:clamp(30px,8.6vw,38px);margin:12px 0 8px;max-width:none} #hero h2{font-size:24px;margin:0 0 8px} #hero p{font-size:14.5px;margin:0 0 18px}
+    #hero .btns{justify-content:flex-start;gap:18px} .hint{display:none}
+    .b1{padding:15px 18px} .b2{padding:12px 0}
+    #shade{width:100%;height:58vh;height:58svh;background:linear-gradient(to top,rgba(17,13,10,.95) 0%,rgba(17,13,10,.86) 50%,rgba(17,13,10,0) 100%)}
+    html.light #shade{background:linear-gradient(to top,rgba(236,234,228,.97) 0%,rgba(236,234,228,.9) 50%,rgba(236,234,228,0) 100%)}
+    .cap{left:16px;right:16px;max-width:none;bottom:calc(78px + env(safe-area-inset-bottom,0px))} .cap b{font-size:23px;line-height:1.2} .cap span{font-size:14.5px}
+    #read{display:none}
+    #bar{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px))} #bar .lg{display:none}
+    #end{left:16px;right:16px;top:auto;bottom:calc(26px + env(safe-area-inset-bottom,0px));max-width:none;justify-content:flex-end} #end b{font-size:30px} #end .btns{justify-content:flex-start;gap:16px}
+    #page section{padding:56px 16px} #page h3{font-size:30px}
+    .opt .acts{gap:14px} .opt .acts .b1{flex:1 1 auto;text-align:center}
+    .facts b{font-size:24px} #page .pnote{font-size:14px}
+    html.ar #hero{text-align:start}
+  }
 </style>
 <script type="importmap">{"imports":{"three":"./lib/three.module.js","three/addons/":"./lib/jsm/"}}</script>
 </head>
